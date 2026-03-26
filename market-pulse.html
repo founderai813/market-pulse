@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>財經 AI 週報 MAX</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08080e;--s1:#10101a;--s2:#161624;--s3:#1e1e2e;
+  --b1:#2a2a3e;--b2:#353548;--b3:#424258;
+  --gold:#ffc93c;--gold2:#ffe08a;--goldg:rgba(255,201,60,.18);
+  --cyan:#00e5ff;--cyang:rgba(0,229,255,.14);
+  --grn:#00ff9d;--grng:rgba(0,255,157,.13);
+  --red:#ff3355;--redg:rgba(255,51,85,.14);
+  --blue:#5599ff;--blueg:rgba(85,153,255,.13);
+  --purple:#cc88ff;--purpleg:rgba(204,136,255,.13);
+  --text:#ffffff;--t2:#d8d8f0;--t3:#9898c0;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Serif TC',serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(255,201,60,.04),transparent),linear-gradient(rgba(255,201,60,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,201,60,.015) 1px,transparent 1px);background-size:100% 100%,56px 56px,56px 56px;pointer-events:none;z-index:0;}
+.z{position:relative;z-index:1;}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px;}
+
+/* HEADER */
+header{padding:20px 0 0;border-bottom:1px solid var(--b1);}
+.h-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:16px;flex-wrap:wrap;}
+.brand h1{font-size:clamp(18px,5vw,26px);font-weight:900;background:linear-gradient(120deg,var(--gold),var(--gold2) 60%,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;}
+.brand p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);margin-top:4px;letter-spacing:.15em;}
+.hbtns{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.hbtn{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;white-space:nowrap;border:1px solid;}
+.hbtn-grn{background:rgba(0,255,157,.12);border-color:rgba(0,255,157,.4);color:var(--grn);}
+.hbtn-blue{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.35);color:var(--cyan);}
+.hbtn-gold{background:var(--goldg);border-color:rgba(255,201,60,.4);color:var(--gold);}
+.ai-pill{display:flex;align-items:center;gap:6px;background:var(--goldg);border:1px solid rgba(255,201,60,.3);padding:6px 12px;border-radius:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:glow 2s infinite;}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(255,201,60,.5)}50%{box-shadow:0 0 0 5px rgba(255,201,60,0)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* KEY MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.show{display:flex;}
+.modal-box{background:#161624;border:1px solid var(--b2);padding:24px;max-width:460px;width:100%;}
+.modal-title{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);letter-spacing:.1em;margin-bottom:12px;}
+.modal-body{font-size:14px;color:var(--t2);line-height:1.8;margin-bottom:14px;}
+.modal-input{width:100%;background:#0e0e14;border:1px solid var(--b2);color:#fff;font-family:'JetBrains Mono',monospace;font-size:13px;padding:11px 14px;outline:none;margin-bottom:12px;}
+.modal-input:focus{border-color:rgba(255,201,60,.5);}
+.modal-btns{display:flex;gap:8px;}
+.modal-save{flex:1;background:var(--goldg);border:1px solid rgba(255,201,60,.5);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:12px;padding:10px;cursor:pointer;font-weight:700;}
+.modal-cancel{background:none;border:1px solid var(--b2);color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:12px;padding:10px 16px;cursor:pointer;}
+.modal-note{font-family:'JetBrains Mono',monospace;font-size:10px;color:#5a5a7a;margin-top:10px;}
+
+/* TICKER */
+.ticker{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;background:var(--s1);border-bottom:1px solid var(--b1);}
+.ticker::-webkit-scrollbar{display:none;}
+.ti{display:flex;flex-direction:column;gap:3px;min-width:fit-content;padding:9px 16px;border-right:1px solid var(--b1);}
+.ti-l{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:.12em;text-transform:uppercase;}
+.ti-v{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;}
+.ti-c{font-family:'JetBrains Mono',monospace;font-size:10px;}
+.up{color:var(--grn);}.dn{color:var(--red);}.warn{color:var(--gold);}
+.update-bar{height:3px;background:linear-gradient(90deg,var(--grn),var(--gold),var(--cyan));background-size:200%;animation:slide 1.2s infinite linear;display:none;}
+@keyframes slide{0%{background-position:0%}100%{background-position:200%}}
+
+/* NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(14,14,26,.97);backdrop-filter:blur(20px);border-top:1px solid var(--b2);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 2px;background:none;border:none;color:var(--t3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;transition:all .2s;}
+.bnav-btn.active{color:var(--gold);}
+.bnav-btn.active .bnav-icon{filter:drop-shadow(0 0 6px rgba(255,201,60,.6));}
+.bnav-icon{font-size:20px;line-height:1;}
+body{padding-bottom:calc(70px + env(safe-area-inset-bottom));}
+
+/* PANELS */
+.panel{display:none;padding:20px 0 8px;}
+.panel.active{display:block;animation:fadeUp .25s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION LABEL */
+.slabel{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.slabel em{color:var(--gold);font-style:normal;}
+.slabel::after{content:'';flex:1;height:1px;background:var(--b2);}
+
+/* DATA GRID */
+.dgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:20px;}
+@media(min-width:500px){.dgrid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:700px){.dgrid{grid-template-columns:repeat(4,1fr);}}
+.dc{background:var(--s2);border:1px solid var(--b2);padding:14px;}
+.dc-l{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:7px;}
+.dc-v{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;line-height:1;margin-bottom:4px;}
+.dc-s{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);}
+
+/* BLOCKS */
+.ablock{background:var(--s2);border:1px solid var(--b2);border-left:4px solid var(--gold);padding:20px;margin-bottom:14px;}
+.ablock.red{border-left-color:var(--red);background:rgba(255,51,85,.04);}
+.ablock.cyan{border-left-color:var(--cyan);}
+.ab-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);letter-spacing:.1em;margin-bottom:8px;}
+.stag{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;padding:5px 12px;margin-bottom:12px;font-weight:700;}
+.stag::before{content:'●';font-size:8px;}
+.stag.bear{background:rgba(255,51,85,.2);color:#ff6680;border:1px solid rgba(255,51,85,.45);}
+.stag.bull{background:rgba(0,255,157,.15);color:var(--grn);border:1px solid rgba(0,255,157,.4);}
+.stag.neutral{background:var(--goldg);color:var(--gold);border:1px solid rgba(255,201,60,.45);}
+.ab-title{font-size:clamp(16px,4vw,19px);font-weight:700;margin-bottom:12px;line-height:1.4;color:#fff;}
+.ab-body{font-size:15px;color:var(--t2);line-height:1.9;}
+.ab-body strong{color:#fff;}
+.ab-pts{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:10px;}
+.ab-pts li{display:flex;gap:10px;font-size:14px;color:var(--t2);line-height:1.7;}
+.ab-pts li::before{content:'//';font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);flex-shrink:0;margin-top:3px;}
+.ab-pts li strong{color:#fff;}
+
+/* STOCK CARDS */
+.sgrid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:20px;}
+@media(min-width:600px){.sgrid{grid-template-columns:repeat(2,1fr);}}
+.sc{background:var(--s2);border:1px solid var(--b2);padding:18px;position:relative;overflow:hidden;}
+.sc-bar{position:absolute;top:0;left:0;right:0;height:3px;}
+.sc-bar.bull{background:linear-gradient(90deg,var(--grn),transparent);}
+.sc-bar.bear{background:linear-gradient(90deg,var(--red),transparent);}
+.sc-bar.neutral{background:linear-gradient(90deg,var(--gold),transparent);}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.sc-name{font-size:18px;font-weight:900;color:#fff;}
+.sc-code{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-top:3px;}
+.sc-price{text-align:right;}
+.sc-p{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;}
+.sc-chg{font-family:'JetBrains Mono',monospace;font-size:11px;margin-top:2px;}
+.sc-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.chip{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 9px;border:1px solid var(--b2);color:var(--t2);}
+.chip.g{border-color:rgba(0,255,157,.5);color:var(--grn);background:rgba(0,255,157,.1);}
+.chip.r{border-color:rgba(255,51,85,.5);color:#ff6680;background:rgba(255,51,85,.1);}
+.chip.y{border-color:rgba(255,201,60,.5);color:var(--gold);background:var(--goldg);}
+.chip.b{border-color:rgba(85,153,255,.5);color:#7ab0ff;background:rgba(85,153,255,.1);}
+.sc-rows{border-top:1px solid var(--b2);padding-top:10px;}
+.sc-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.sc-row:last-child{border-bottom:none;}
+.sc-rl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);}
+.sc-rv{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);font-weight:600;text-align:right;max-width:60%;}
+.sc-rv.g{color:var(--grn);}.sc-rv.r{color:#ff6680;}.sc-rv.y{color:var(--gold);}
+.sc-note{font-size:13px;color:var(--t2);line-height:1.8;margin-top:10px;padding-top:10px;border-top:1px solid var(--b2);}
+.sc-note strong{color:#fff;}
+.sc-src{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-top:6px;}
+
+/* POD SOURCE TAGS */
+.pod-src-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;padding:3px 9px;text-transform:uppercase;font-weight:700;border:1px solid;}
+.pod-src-tag.haojiao{background:rgba(255,201,60,.18);color:var(--gold);border-color:rgba(255,201,60,.45);}
+.pod-src-tag.gooaye{background:rgba(0,229,255,.14);color:var(--cyan);border-color:rgba(0,229,255,.4);}
+.pod-src-tag.ieo{background:rgba(0,255,157,.13);color:var(--grn);border-color:rgba(0,255,157,.4);}
+.pod-src-tag.macro{background:rgba(204,136,255,.13);color:var(--purple);border-color:rgba(204,136,255,.4);}
+.pod-src-tag.ptt{background:rgba(255,100,80,.14);color:#ff7060;border-color:rgba(255,100,80,.4);}
+.pod-src-tag.both{background:rgba(255,170,50,.14);color:#ffaa32;border-color:rgba(255,170,50,.4);}
+
+/* KOL */
+.kol{background:var(--s2);border:1px solid var(--b2);border-left:3px solid var(--cyan);padding:15px 17px;margin-bottom:10px;}
+.kh{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.kb{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--cyan);border:1px solid rgba(0,229,255,.4);padding:3px 9px;text-transform:uppercase;background:rgba(0,229,255,.1);}
+.kn{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cyan);font-weight:700;}
+.ksrc{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);border:1px solid var(--b2);padding:2px 7px;}
+.kv{font-size:14px;color:var(--t2);line-height:1.85;}
+.kv strong{color:#fff;}
+.kd{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-top:6px;}
+
+/* SENTIMENT GRID */
+.sent-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.sent-card{background:var(--s2);border:1px solid var(--b2);padding:14px;}
+.sent-card-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;margin-bottom:6px;}
+.sent-card-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;margin-bottom:4px;}
+.sent-card-sub{font-size:12px;color:var(--t2);line-height:1.6;}
+.sent-card-src{font-family:'JetBrains Mono',monospace;font-size:9px;color:#5a5a7a;margin-top:6px;}
+.sent-detail{background:var(--s2);border:1px solid var(--b2);border-left:3px solid;padding:14px 16px;margin-bottom:8px;}
+.sent-detail-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+.sent-detail-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;}
+.sent-detail-body{font-size:14px;color:var(--t2);line-height:1.8;}
+.sent-tag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 9px;border:1px solid;margin:2px;}
+
+/* SEARCH */
+.sq-chip{font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 12px;border:1px solid var(--b2);background:var(--s2);color:var(--t2);cursor:pointer;transition:all .15s;}
+.sq-chip:hover{border-color:var(--gold);color:var(--gold);background:var(--goldg);}
+.search-input{width:100%;background:var(--s2);border:1px solid var(--b2);color:#fff;font-family:'Noto Serif TC',serif;font-size:16px;padding:12px 16px;outline:none;transition:border-color .2s;}
+.search-input:focus{border-color:rgba(255,201,60,.5);}
+.search-input::placeholder{color:var(--t3);}
+
+/* WATCHLIST */
+.wl-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+@media(min-width:500px){.wl-grid{grid-template-columns:repeat(2,1fr);}}
+.wl-card{background:var(--s2);border:1px solid var(--b2);padding:16px;position:relative;}
+.wl-ai-btn{width:100%;margin-top:10px;background:var(--goldg);border:1px solid rgba(255,201,60,.4);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;padding:10px;cursor:pointer;font-weight:700;}
+.add-row{display:flex;gap:8px;margin-bottom:14px;}
+.add-btn{background:var(--goldg);border:1px solid rgba(255,201,60,.45);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:12px;padding:0 16px;cursor:pointer;font-weight:700;}
+
+/* AI CHAT */
+.ai-wrap{background:var(--s1);border:1px solid var(--b2);}
+.ai-hdr{display:flex;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid var(--b2);background:rgba(255,201,60,.05);}
+.ai-ico{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),rgba(255,201,60,.3));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 0 10px rgba(255,201,60,.2);}
+.ai-hdr-title{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);font-weight:700;}
+.ai-hdr-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-top:2px;}
+.qrow{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--b2);overflow-x:auto;scrollbar-width:none;}
+.qrow::-webkit-scrollbar{display:none;}
+.qbtn{font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 13px;background:var(--s3);border:1px solid var(--b2);color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.qbtn:hover{border-color:var(--gold);color:var(--gold);}
+.ai-msgs{padding:16px;min-height:180px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:13px;}
+.ai-msgs::-webkit-scrollbar{width:3px;}
+.ai-msgs::-webkit-scrollbar-thumb{background:var(--b3);}
+.msg{display:flex;gap:9px;animation:fadeUp .25s ease;}
+.msg.user{flex-direction:row-reverse;}
+.bubble{max-width:88%;padding:12px 15px;font-size:15px;line-height:1.85;border:1px solid var(--b2);}
+.msg.ai .bubble{background:var(--s2);color:var(--t2);}
+.msg.ai .bubble strong{color:#fff;}
+.msg.user .bubble{background:rgba(255,201,60,.15);color:var(--gold2);border-color:rgba(255,201,60,.35);}
+.ava{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:4px;}
+.msg.ai .ava{background:linear-gradient(135deg,var(--gold),rgba(255,201,60,.3));}
+.msg.user .ava{background:var(--s3);border:1px solid var(--b2);color:var(--t2);font-family:'JetBrains Mono',monospace;font-size:11px;}
+.typing-wrap{display:flex;gap:5px;align-items:center;}
+.typing-wrap span{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:dot 1.2s infinite;}
+.typing-wrap span:nth-child(2){animation-delay:.2s;}
+.typing-wrap span:nth-child(3){animation-delay:.4s;}
+@keyframes dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+.ai-input-row{display:flex;border-top:1px solid var(--b2);}
+.ai-txt{flex:1;background:transparent;border:none;padding:14px 17px;color:#fff;font-family:'Noto Serif TC',serif;font-size:16px;outline:none;}
+.ai-txt::placeholder{color:var(--t3);}
+.ai-send{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;padding:0 18px;background:var(--goldg);color:var(--gold);border:none;border-left:1px solid var(--b2);cursor:pointer;font-weight:700;}
+.ai-send:disabled{opacity:.35;cursor:not-allowed;}
+
+/* PODCAST */
+.pfilt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.pfbtn{font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 13px;border:1px solid var(--b2);background:none;color:var(--t2);cursor:pointer;text-transform:uppercase;}
+.pfbtn.active,.pfbtn:hover{border-color:var(--gold);color:var(--gold);background:var(--goldg);}
+.sinput{width:100%;background:var(--s2);border:1px solid var(--b2);color:#fff;font-family:'Noto Serif TC',serif;font-size:16px;padding:12px 16px 12px 42px;outline:none;}
+.sinput:focus{border-color:rgba(255,201,60,.45);}
+.sinput::placeholder{color:var(--t3);}
+.swrap{position:relative;margin-bottom:12px;}
+.s-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t3);}
+.eplist{display:flex;flex-direction:column;gap:8px;}
+.epc{background:var(--s2);border:1px solid var(--b2);padding:17px 17px 17px 21px;cursor:pointer;position:relative;overflow:hidden;}
+.epc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.epc.haojiao::before{background:var(--gold);}
+.epc.gooaye::before{background:var(--cyan);}
+.epc.ieo::before{background:var(--grn);}
+.epc.macromicro::before{background:var(--purple);}
+.emeta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.ebadge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;padding:3px 9px;text-transform:uppercase;font-weight:700;}
+.ebadge.haojiao{background:rgba(255,201,60,.2);color:var(--gold);border:1px solid rgba(255,201,60,.45);}
+.ebadge.gooaye{background:rgba(0,229,255,.15);color:var(--cyan);border:1px solid rgba(0,229,255,.45);}
+.ebadge.ieo{background:rgba(0,255,157,.13);color:var(--grn);border:1px solid rgba(0,255,157,.4);}
+.ebadge.macromicro{background:rgba(204,136,255,.13);color:var(--purple);border:1px solid rgba(204,136,255,.4);}
+.edate{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);}
+.esent{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 10px;font-weight:700;margin-left:auto;}
+.esent.b{background:rgba(0,255,157,.18);color:var(--grn);border:1px solid rgba(0,255,157,.45);}
+.esent.be{background:rgba(255,51,85,.18);color:#ff6680;border:1px solid rgba(255,51,85,.45);}
+.esent.n{background:var(--goldg);color:var(--gold);border:1px solid rgba(255,201,60,.45);}
+.etitle{font-size:16px;font-weight:700;line-height:1.5;margin-bottom:8px;color:#fff;}
+.etags{display:flex;flex-wrap:wrap;gap:5px;}
+.etag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;background:var(--s1);border:1px solid var(--b2);color:var(--t3);}
+.ebody{display:none;margin-top:13px;padding-top:13px;border-top:1px solid var(--b2);}
+.ebody.show{display:block;}
+.epts{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.epts li{display:flex;gap:8px;font-size:14px;color:var(--t2);line-height:1.7;}
+.epts li::before{content:'//';font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);flex-shrink:0;margin-top:3px;}
+.elink{display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);text-decoration:none;border:1px solid rgba(255,201,60,.35);padding:7px 14px;background:var(--goldg);}
+
+/* MISC */
+.div{height:1px;background:var(--b2);margin:20px 0;}
+.wbox{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ff6680;padding:13px 15px;border:1px solid rgba(255,51,85,.4);background:rgba(255,51,85,.1);line-height:1.8;margin-top:14px;}
+.update-card{background:rgba(0,255,157,.05);border:1px solid rgba(0,255,157,.22);border-left:3px solid var(--grn);padding:15px 17px;margin-bottom:10px;}
+.update-card-title{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--grn);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
+.update-card-body{font-size:14px;color:var(--t2);line-height:1.85;}
+.update-card-body strong{color:#fff;}
+footer{padding:24px 0 10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);line-height:2.2;text-align:center;}
+
+/* PORTFOLIO & SIMULATOR (shared) */
+.ptf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;}
+select,input[type=number],input[type=text]{font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body>
+
+<!-- KEY MODAL -->
+<div class="modal-bg" id="key-modal">
+  <div class="modal-box">
+    <div class="modal-title">🔑 設定 Anthropic API Key</div>
+    <div class="modal-body">本地端使用 AI 功能需要你自己的 API Key。<br>
+      取得：<a href="https://console.anthropic.com/account/keys" target="_blank" style="color:var(--cyan);">console.anthropic.com</a>（需帳號，有免費額度）
+    </div>
+    <input class="modal-input" id="key-input" type="password" placeholder="sk-ant-api03-...">
+    <div class="modal-btns">
+      <button class="modal-save" onclick="saveKey()">✓ 儲存並啟用</button>
+      <button class="modal-cancel" onclick="closeKeyModal()">取消</button>
+    </div>
+    <div class="modal-note">Key 只存在你的瀏覽器 localStorage，不會上傳至任何地方。</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="z">
+<div class="wrap">
+  <div class="h-row">
+    <div class="brand"><h1>財經 AI 週報</h1><p id="last-updated">MAX · 2026/03/21（舊）</p></div>
+    <div class="hbtns">
+      <button class="hbtn hbtn-grn" onclick="liveUpdate()" id="update-btn">
+        <span id="update-icon">↻</span><span id="update-txt">即時更新</span>
+      </button>
+      <button class="hbtn hbtn-blue" onclick="openKeyModal()" id="key-btn">
+        <span id="key-icon">🔑</span><span id="key-status">設定 API Key</span>
+      </button>
+      <div class="ai-pill"><div class="ai-dot"></div>Claude AI</div>
+    </div>
+  </div>
+</div>
+<div class="ticker" id="ticker-bar">
+  <div class="ti"><span class="ti-l">S&P500</span><span class="ti-v dn" id="tk-sp">6,506</span><span class="ti-c dn" id="tk-sp-c">▼1.51%</span></div>
+  <div class="ti"><span class="ti-l">台股</span><span class="ti-v dn" id="tk-tw">33,543</span><span class="ti-c dn" id="tk-tw-c">▼0.43%</span></div>
+  <div class="ti"><span class="ti-l">恒生</span><span class="ti-v dn" id="tk-hk">25,593</span><span class="ti-c dn" id="tk-hk-c">▼1.66%</span></div>
+  <div class="ti"><span class="ti-l">BTC</span><span class="ti-v warn" id="tk-btc">$70,694</span><span class="ti-c dn" id="tk-btc-c">▼0.26%</span></div>
+  <div class="ti"><span class="ti-l">ETH</span><span class="ti-v dn" id="tk-eth">$2,480</span><span class="ti-c dn" id="tk-eth-c">▼1.8%</span></div>
+  <div class="ti"><span class="ti-l">WTI</span><span class="ti-v warn" id="tk-wti">$98.23</span><span class="ti-c warn" id="tk-wti-c">▲2.17%</span></div>
+  <div class="ti"><span class="ti-l">黃金</span><span class="ti-v" id="tk-gold">$4,574</span><span class="ti-c dn" id="tk-gold-c">▼0.56%</span></div>
+  <div class="ti"><span class="ti-l">F&amp;G</span><span class="ti-v dn" id="tk-fg">15</span><span class="ti-c dn" id="tk-fg-c">極度恐慌</span></div>
+  <div class="ti"><span class="ti-l">VIX</span><span class="ti-v warn" id="tk-vix">26.78</span><span class="ti-c warn">警戒</span></div>
+  <div class="ti"><span class="ti-l">外資</span><span class="ti-v dn" id="tk-fi">-403億</span><span class="ti-c dn">台股</span></div>
+</div>
+<div class="update-bar" id="update-bar"></div>
+</header>
+
+<div class="wrap z">
+
+<!-- ══ 市場 ══ -->
+<div id="panel-market" class="panel active">
+  <div class="slabel"><em>//</em> 本週核心敘事</div>
+  <div class="ablock red">
+    <div class="ab-meta">MACRO · 2026/03/21</div>
+    <span class="stag bear">停滯性通膨恐慌</span>
+    <div class="ab-title">全資產去槓桿 — 股債黃金加密全線下跌</div>
+    <div class="ab-body">本週最大宏觀事件：停滯性通膨（Stagflation）敘事主導市場。伊朗攻擊沙烏地、卡達、科威特能源設施後，WTI 飆破 $98，通膨預期急速升溫，Fed 不可能降息，高利率持續壓制所有資產。<strong>市場敘事從 AI 基建多頭轉向景氣下滑擔憂，觸發系統性去槓桿。</strong>
+      <ul class="ab-pts">
+        <li><strong>油價衝擊</strong>：WTI $98.23（▲2.17%），中東衝突使能源供給風險持續，通膨預期居高不下。</li>
+        <li><strong>Fed 政策</strong>：EFFR 3.62%，鮑爾強調密切監控油價，巴克萊估今年最多 6 月一次降息。</li>
+        <li><strong>市場情緒</strong>：F&amp;G 指數 15（極度恐慌），VIX 26.78（警戒），S&amp;P RSI 30.4 接近超賣未確認。</li>
+        <li><strong>資產表現</strong>：股、債、黃金、加密全線下跌，顯示「無差別去槓桿」。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="slabel" style="margin-top:20px;"><em>//</em> 關鍵數據（TWSE · MacroMicro · Bybit）</div>
+  <div class="dgrid">
+    <div class="dc"><div class="dc-l">F&amp;G</div><div class="dc-v dn" id="dc-fg">15</div><div class="dc-s dn">極度恐慌</div></div>
+    <div class="dc"><div class="dc-l">VIX</div><div class="dc-v warn" id="dc-vix">26.78</div><div class="dc-s warn">警戒區間</div></div>
+    <div class="dc"><div class="dc-l">美債 10Y</div><div class="dc-v">4.39%</div><div class="dc-s warn">高利率環境</div></div>
+    <div class="dc"><div class="dc-l">殖利率曲線</div><div class="dc-v up">+0.77%</div><div class="dc-s up">正斜率</div></div>
+    <div class="dc"><div class="dc-l">台股加權</div><div class="dc-v dn" id="dc-tw">33,543</div><div class="dc-s dn">跌破月線</div></div>
+    <div class="dc"><div class="dc-l">台指期空單</div><div class="dc-v dn">41,633口</div><div class="dc-s dn">法人偏空</div></div>
+    <div class="dc"><div class="dc-l">恒指</div><div class="dc-v dn">25,593</div><div class="dc-s dn">支撐 25,521</div></div>
+    <div class="dc"><div class="dc-l">BTC</div><div class="dc-v warn" id="dc-btc">$70,694</div><div class="dc-s dn">$70K 支撐</div></div>
+  </div>
+
+  <!-- 即時更新區 -->
+  <div id="live-update-area" style="display:none;">
+    <div class="slabel"><em>//</em> 即時更新 <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--grn);" id="live-ts"></span></div>
+    <div id="live-cards"></div>
+  </div>
+
+  <!-- 情緒牆 -->
+  <div class="div"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);"><em style="color:var(--gold);font-style:normal;">//</em> 市場聲音 — 多來源情緒整合</div>
+    <button onclick="runSentiment('market')" id="msent-btn" class="hbtn" style="background:rgba(204,136,255,.12);border-color:rgba(204,136,255,.4);color:var(--purple);">
+      <span id="msent-icon">↻</span> <span id="msent-txt">載入情緒分析</span>
+    </button>
+  </div>
+  <div class="sent-grid">
+    <div class="sent-card"><div class="sent-card-label" style="color:var(--gold);">🏦 券商晨報</div><div class="sent-card-val" id="ms-broker">--</div><div class="sent-card-sub" id="ms-broker-s">等待載入</div><div class="sent-card-src">來源：元大 · 富邦 · 凱基 · 國泰</div></div>
+    <div class="sent-card"><div class="sent-card-label" style="color:#ff6680;">🌐 Reddit</div><div class="sent-card-val" id="ms-reddit">--</div><div class="sent-card-sub" id="ms-reddit-s">等待載入</div><div class="sent-card-src">來源：r/stocks · r/wallstreetbets</div></div>
+    <div class="sent-card"><div class="sent-card-label" style="color:var(--blue);">𝕏 Twitter</div><div class="sent-card-val" id="ms-twitter">--</div><div class="sent-card-sub" id="ms-twitter-s">等待載入</div><div class="sent-card-src">來源：財經 KOL · 幣圈</div></div>
+    <div class="sent-card"><div class="sent-card-label" style="color:#ff7060;">💬 PTT+Yahoo</div><div class="sent-card-val" id="ms-community">--</div><div class="sent-card-sub" id="ms-community-s">等待載入</div><div class="sent-card-src">來源：PTT 股版 · Yahoo 留言</div></div>
+  </div>
+  <!-- 指針 -->
+  <div style="background:var(--s2);border:1px solid var(--b2);padding:15px;margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);letter-spacing:.1em;">綜合情緒指針</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;" id="ms-label-badge">--</div>
+    </div>
+    <div style="height:8px;border-radius:4px;background:linear-gradient(90deg,#ff3355 0%,#ff7744 25%,#ffc93c 50%,#44cc88 75%,#00ff9d 100%);margin-bottom:6px;position:relative;">
+      <div id="ms-needle" style="position:absolute;top:-5px;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--purple);transform:translateX(-50%);left:50%;transition:left .8s ease;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);"><span>極度恐慌</span><span>恐慌</span><span>中性</span><span>貪婪</span><span>極度貪婪</span></div>
+    <div id="ms-macro-note" style="display:none;margin-top:12px;font-size:13px;color:var(--t2);line-height:1.8;"></div>
+  </div>
+  <div id="ms-details" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+  <div id="ms-keywords-wrap" style="display:none;">
+    <div class="slabel"><em>//</em> 本週市場熱搜關鍵字</div>
+    <div id="ms-keywords" style="display:flex;flex-wrap:wrap;gap:7px;"></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-top:6px;">點擊關鍵字直接問 AI</div>
+  </div>
+
+  <div class="div"></div>
+  <div class="slabel"><em>//</em> KOL 觀點補充</div>
+  <div class="kol"><div class="kh"><span class="kb">Podcast</span><span class="kn">游庭皓 — 財經皓角</span><span class="ksrc">3/20</span></div><div class="kv">所有資產齊跌的核心是<strong>停滯性通膨憂慮升溫</strong>，市場敘事從「AI 基建」轉向「整體經濟壓力」。建議<strong>保持防禦，等待利率或殖利率曲線改善</strong>再行動。</div><div class="kd">⚠ 教育性內容，非投資建議</div></div>
+  <div class="kol"><div class="kh"><span class="kb">機構</span><span class="kn">巴克萊銀行</span><span class="ksrc">鉅亨網 3/19</span></div><div class="kv">2026 年 Fed <strong>最多只有 6 月一次降息機會</strong>，貨幣寬鬆空間極有限。油價高位下降息視窗持續收窄。</div><div class="kd">⚠ 機構觀點，非投資建議</div></div>
+</div>
+
+<!-- ══ 個股 ══ -->
+<div id="panel-stocks" class="panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+    <div><div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;">本週熱門討論個股 Top 10</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);">來源：Podcast · <span style="color:#ff7060;">PTT 股版</span> · 資料：<span id="stocks-date">2026/03/21（舊）</span></div>
+    </div>
+    <button onclick="refreshStocksPage()" id="stocks-refresh-btn" class="hbtn hbtn-blue"><span id="stocks-refresh-icon">↻</span><span id="stocks-refresh-txt">更新這頁</span></button>
+  </div>
+  <div id="stocks-progress" style="display:none;background:var(--s2);border:1px solid var(--b2);border-left:3px solid var(--cyan);padding:12px 15px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cyan);"></div>
+  <div id="stocks-grid" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;"></div>
+  <div class="div"></div>
+  <div class="slabel"><em>//</em> 搜尋其他股票</div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;">
+    <input class="search-input" id="stock-search-input" type="text" placeholder="例：NVDA、Tesla、聯發科、SOL…" onkeydown="if(event.key==='Enter')searchStock()">
+    <button onclick="searchStock()" id="stock-search-btn" class="add-btn" style="white-space:nowrap;padding:0 16px;">搜尋 ↵</button>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+    <button class="sq-chip" onclick="quickSearch('NVIDIA NVDA')">NVIDIA</button>
+    <button class="sq-chip" onclick="quickSearch('Tesla TSLA')">Tesla</button>
+    <button class="sq-chip" onclick="quickSearch('Apple AAPL')">Apple</button>
+    <button class="sq-chip" onclick="quickSearch('Solana SOL')">SOL</button>
+    <button class="sq-chip" onclick="quickSearch('聯發科 2454')">聯發科</button>
+    <button class="sq-chip" onclick="quickSearch('阿里巴巴 BABA')">阿里</button>
+  </div>
+  <div id="stock-loading" style="display:none;text-align:center;padding:32px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);">✦ AI 搜尋中...</div>
+  <div id="stock-result-area" style="display:none;">
+    <div class="slabel"><em>//</em> 搜尋結果：<span id="stock-result-label" style="color:var(--t2);"></span></div>
+    <div id="stock-result-card"></div>
+  </div>
+  <div class="wbox">⚠ 個股數據由 AI 即時搜尋，僅供參考，不構成任何投資建議。</div>
+</div>
+
+<!-- ══ 情緒 ══ -->
+<div id="panel-sentiment" class="panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+    <div><div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;">市場情緒儀表板</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);">券商晨報 · Reddit · X · PTT · Yahoo · <span id="sent-date">2026/03/21（舊）</span></div>
+    </div>
+    <button onclick="runSentiment('panel')" id="sent-refresh-btn" class="hbtn" style="background:rgba(204,136,255,.12);border-color:rgba(204,136,255,.4);color:var(--purple);">
+      <span id="sent-icon">↻</span><span id="sent-txt">載入情緒分析</span>
+    </button>
+  </div>
+  <div class="sent-grid">
+    <div class="sent-card"><div class="sent-card-label" style="color:var(--gold);">🏦 券商晨報</div><div class="sent-card-val" id="sm-broker">--</div><div class="sent-card-sub" id="sm-broker-s">等待載入</div><div class="sent-card-src">元大 · 富邦 · 凱基 · 國泰</div></div>
+    <div class="sent-card"><div class="sent-card-label" style="color:#ff6680;">🌐 Reddit</div><div class="sent-card-val" id="sm-reddit">--</div><div class="sent-card-sub" id="sm-reddit-s">等待載入</div><div class="sent-card-src">r/stocks · r/wallstreetbets</div></div>
+    <div class="sent-card"><div class="sent-card-label" style="color:var(--blue);">𝕏 X / Twitter</div><div class="sent-card-val" id="sm-twitter">--</div><div class="sent-card-sub" id="sm-twitter-s">等待載入</div><div class="sent-card-src">財經 KOL · 幣圈 Twitter</div></div>
+    <div class="sent-card"><div class="sent-card-label" style="color:#ff7060;">💬 PTT + Yahoo</div><div class="sent-card-val" id="sm-community">--</div><div class="sent-card-sub" id="sm-community-s">等待載入</div><div class="sent-card-src">PTT 股版 · Yahoo 股市留言</div></div>
+  </div>
+  <div style="background:var(--s2);border:1px solid var(--b2);padding:16px;margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);">綜合情緒指針</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;" id="sent-label">--</span></div>
+    <div style="height:8px;border-radius:4px;background:linear-gradient(90deg,#ff3355,#ff7744,#ffc93c,#44cc88,#00ff9d);margin-bottom:6px;position:relative;">
+      <div id="sent-needle" style="position:absolute;top:-5px;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--purple);transform:translateX(-50%);left:50%;transition:left .8s ease;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);"><span>極度恐慌</span><span>恐慌</span><span>中性</span><span>貪婪</span><span>極度貪婪</span></div>
+    <div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:900;text-align:center;" id="sent-score">--</div>
+  </div>
+  <div id="sent-details" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+    <div style="text-align:center;padding:32px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3);">點擊上方「載入情緒分析」開始</div>
+  </div>
+  <div id="sent-keywords-wrap" style="display:none;">
+    <div class="slabel"><em>//</em> 本週熱搜關鍵字</div>
+    <div id="sent-keywords" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px;"></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);">來源：券商晨報 · PTT · Reddit · X · Yahoo · 點擊直接問 AI</div>
+  </div>
+</div>
+
+<!-- ══ 自選 ══ -->
+<div id="panel-watchlist" class="panel">
+  <div class="slabel"><em>//</em> 我的自選清單</div>
+  <div class="add-row">
+    <input class="search-input" id="add-input" type="text" placeholder="輸入股票名稱或代號，按 Enter 加入" onkeydown="if(event.key==='Enter')addToWatchlist()">
+    <button class="add-btn" onclick="addToWatchlist()">+ 加入</button>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+    <button class="sq-chip" onclick="addPreset('台積電')">台積電</button>
+    <button class="sq-chip" onclick="addPreset('美光 MU')">美光</button>
+    <button class="sq-chip" onclick="addPreset('鴻海')">鴻海</button>
+    <button class="sq-chip" onclick="addPreset('BTC')">BTC</button>
+    <button class="sq-chip" onclick="addPreset('騰訊')">騰訊</button>
+    <button class="sq-chip" onclick="addPreset('NVIDIA')">NVIDIA</button>
+  </div>
+  <div id="wl-list"></div>
+</div>
+
+<!-- ══ 持倉 ══ -->
+<div id="panel-portfolio" class="panel">
+  <div class="slabel"><em>//</em> 我的真實持倉</div>
+  <div class="ptf-grid">
+    <div class="dc"><div class="dc-l">投入成本</div><div class="dc-v" id="ptf-cost">--</div><div class="dc-s">USD 累計</div></div>
+    <div class="dc"><div class="dc-l">當前市值</div><div class="dc-v" id="ptf-value">--</div><div class="dc-s">按現價估算</div></div>
+    <div class="dc"><div class="dc-l">未實現損益</div><div class="dc-v" id="ptf-pnl">--</div><div class="dc-s" id="ptf-pnl-pct">--</div></div>
+    <div class="dc"><div class="dc-l">持倉檔數</div><div class="dc-v" id="ptf-count">0</div><div class="dc-s">個股 / 幣種</div></div>
+  </div>
+  <div style="background:var(--s2);border:1px solid var(--b2);padding:16px;margin-bottom:14px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">＋ 新增持倉</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">股票 / 幣種</div>
+        <select id="ptf-sel" style="width:100%;background:var(--s3);border:1px solid var(--b2);color:#fff;font-size:13px;padding:10px 12px;outline:none;">
+          <option value="">-- 選擇 --</option>
+          <optgroup label="🇹🇼 台股"><option value="tsm">台積電 NT$1,840</option><option value="foxconn">鴻海 NT$212</option><option value="delta">台達電 NT$1,440</option><option value="mtk">聯發科 NT$1,700</option><option value="winbond">華邦電 NT$110</option></optgroup>
+          <optgroup label="🇺🇸 美股"><option value="mu">美光 MU $422.90</option><option value="nvda">NVIDIA $172.70</option></optgroup>
+          <optgroup label="🇭🇰 港股"><option value="tencent">騰訊 HK$320</option><option value="xiaomi">小米 HK$28</option></optgroup>
+          <optgroup label="₿ 加密"><option value="btc">BTC $70,694</option><option value="eth">ETH $2,480</option></optgroup>
+        </select>
+      </div>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">持有數量</div><input id="ptf-qty" type="number" placeholder="100" min="0" style="width:100%;background:var(--s3);border:1px solid var(--b2);color:#fff;font-size:13px;padding:10px 12px;outline:none;"></div>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">買入成本（每股）</div><input id="ptf-cost-input" type="number" placeholder="1900" min="0" step="0.01" style="width:100%;background:var(--s3);border:1px solid var(--b2);color:#fff;font-size:13px;padding:10px 12px;outline:none;"></div>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">幣別</div>
+        <select id="ptf-currency" style="width:100%;background:var(--s3);border:1px solid var(--b2);color:#fff;font-size:13px;padding:10px 12px;outline:none;">
+          <option value="TWD">TWD 新台幣</option><option value="HKD">HKD 港幣</option><option value="USD">USD 美元</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:8px;"><input id="ptf-note-input" type="text" placeholder="備註（選填，例：定期定額）" style="width:100%;background:var(--s3);border:1px solid var(--b2);color:#fff;font-size:14px;padding:10px 12px;outline:none;font-family:'Noto Serif TC',serif;"></div>
+    <button onclick="addPosition()" style="width:100%;background:var(--goldg);border:1px solid rgba(255,201,60,.5);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.08em;padding:12px;cursor:pointer;font-weight:700;">＋ 加入持倉</button>
+  </div>
+  <div id="ptf-list"></div>
+  <button onclick="analyzePortfolio()" id="ptf-ai-btn" style="display:none;width:100%;margin-top:10px;background:var(--goldg);border:1px solid rgba(255,201,60,.4);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.08em;padding:13px;cursor:pointer;font-weight:700;">✦ AI 分析我的持倉</button>
+</div>
+
+<!-- ══ 模擬 ══ -->
+<div id="panel-simulator" class="panel">
+  <div class="slabel"><em>//</em> 模擬交易室 <span style="font-size:10px;color:var(--t3);">按現時真實價格模擬操作</span></div>
+  <div style="background:var(--s2);border:1px solid var(--b2);border-left:4px solid var(--gold);padding:16px;margin-bottom:14px;">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">模擬現金</div><div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--gold);" id="sim-cash">$100,000</div></div>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">持倉市值</div><div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;" id="sim-value">$0</div></div>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">總資產</div><div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;" id="sim-total">$100,000</div></div>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">總損益</div><div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;" id="sim-pnl">$0</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;" id="sim-pnl-pct">0.00%</div></div>
+    </div>
+    <button onclick="resetSimulator()" style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 12px;background:none;border:1px solid var(--b2);color:var(--t3);cursor:pointer;">↺ 重置帳戶（$100,000）</button>
+  </div>
+  <div style="background:var(--s2);border:1px solid var(--b2);padding:16px;margin-bottom:14px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">📋 下單</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">選擇標的</div>
+        <select id="sim-sel" onchange="updateSimPrice()" style="width:100%;background:var(--s3);border:1px solid var(--b2);color:#fff;font-size:13px;padding:10px 12px;outline:none;">
+          <option value="">-- 選擇 --</option>
+          <optgroup label="🇹🇼 台股（TWD）"><option value="tsm:1840:TWD">台積電 NT$1,840</option><option value="foxconn:212:TWD">鴻海 NT$212</option><option value="delta:1440:TWD">台達電 NT$1,440</option><option value="mtk:1700:TWD">聯發科 NT$1,700</option><option value="winbond:110:TWD">華邦電 NT$110</option></optgroup>
+          <optgroup label="🇺🇸 美股（USD）"><option value="mu:422.90:USD">美光 MU $422.90</option><option value="nvda:172.70:USD">NVIDIA $172.70</option></optgroup>
+          <optgroup label="🇭🇰 港股（HKD）"><option value="tencent:320:HKD">騰訊 HK$320</option><option value="xiaomi:28:HKD">小米 HK$28</option></optgroup>
+          <optgroup label="₿ 加密（USD）"><option value="btc:70694:USD">BTC $70,694</option><option value="eth:2480:USD">ETH $2,480</option></optgroup>
+        </select>
+      </div>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">現時價格</div><div id="sim-cur-price" style="background:var(--s3);border:1px solid var(--b2);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;padding:10px 12px;">--</div></div>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">數量</div><input id="sim-qty" type="number" placeholder="1" min="0.0001" step="any" oninput="updateSimCost()" style="width:100%;background:var(--s3);border:1px solid var(--b2);color:#fff;font-size:13px;padding:10px 12px;outline:none;"></div>
+      <div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:5px;">預估金額（USD）</div><div id="sim-est" style="background:var(--s3);border:1px solid var(--b2);color:var(--t2);font-family:'JetBrains Mono',monospace;font-size:16px;padding:10px 12px;">--</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <button onclick="simTrade('buy')" style="background:rgba(0,255,157,.18);border:1px solid rgba(0,255,157,.5);color:var(--grn);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:13px;cursor:pointer;">▲ 買入</button>
+      <button onclick="simTrade('sell')" style="background:rgba(255,51,85,.18);border:1px solid rgba(255,51,85,.5);color:#ff6680;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:13px;cursor:pointer;">▼ 賣出</button>
+    </div>
+    <div id="sim-msg" style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:12px;display:none;padding:10px 14px;"></div>
+  </div>
+  <div class="slabel"><em>//</em> 模擬持倉明細</div>
+  <div id="sim-holdings"></div>
+  <div class="slabel" style="margin-top:16px;"><em>//</em> 交易紀錄</div>
+  <div id="sim-log" style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;"></div>
+  <button onclick="simAIAdvice()" style="width:100%;margin-top:16px;background:var(--goldg);border:1px solid rgba(255,201,60,.4);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.08em;padding:13px;cursor:pointer;font-weight:700;">✦ AI 分析模擬帳戶</button>
+  <div id="sim-ai-output" style="display:none;margin-top:10px;background:var(--s2);border:1px solid var(--b2);border-left:4px solid var(--gold);padding:15px;font-size:14px;color:var(--t2);line-height:1.85;"></div>
+</div>
+
+<!-- ══ AI ══ -->
+<div id="panel-ai" class="panel">
+  <div class="slabel"><em>//</em> AI 分析師 — Powered by Claude</div>
+  <div class="ai-wrap">
+    <div class="ai-hdr"><div class="ai-ico">✦</div><div><div class="ai-hdr-title">財經 AI 分析師</div><div class="ai-hdr-sub">基於本週最新數據 · 個股分析 · 問答 · 策略建議</div></div></div>
+    <div class="qrow">
+      <button class="qbtn" onclick="q('台積電現在值得買嗎？分析短線風險和長線邏輯。')">台積電值得買？</button>
+      <button class="qbtn" onclick="q('BTC $70K 守得住嗎？接下來怎麼看？')">BTC 能守 $70K？</button>
+      <button class="qbtn" onclick="q('現在停滯性通膨環境下，什麼資產最抗跌？')">停滯性通膨避險？</button>
+      <button class="qbtn" onclick="q('記憶體超級循環確認了嗎？美光財報怎麼看？')">記憶體循環？</button>
+      <button class="qbtn" onclick="q('港股恒生科技是底部嗎？騰訊值得逆向布局？')">港股是底部？</button>
+      <button class="qbtn" onclick="q('現在最確定的基本面個股有哪幾支？')">最確定個股？</button>
+    </div>
+    <div class="ai-msgs" id="ai-msgs">
+      <div class="msg ai"><div class="ava">✦</div><div class="bubble">你好！我是財經 AI 分析師，基於 2026/03/21 最新市場數據為你提供分析。<br><br>我掌握：<strong>總體經濟</strong>（停滯性通膨 / Fed 政策）、<strong>台股個股</strong>（台積電、美光、鴻海、台達電、NVIDIA、南亞科、長榮、台塑化）、<strong>港股</strong>（騰訊、小米）、<strong>加密</strong>（BTC、ETH）。<br><br>點擊上方快問，或直接輸入你的問題。<br><br><small>⚠ 分析僅供參考，不構成投資建議。使用 AI 功能請先設定 API Key。</small></div></div>
+    </div>
+    <div class="ai-input-row">
+      <input class="ai-txt" id="ai-input" type="text" placeholder="問我任何財經問題…" onkeydown="if(event.key==='Enter')sendAI()">
+      <button class="ai-send" id="ai-send" onclick="sendAI()">SEND ↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Podcast ══ -->
+<div id="panel-pod" class="panel">
+  <div class="pfilt">
+    <button class="pfbtn active" onclick="fSrc('all',this)">ALL</button>
+    <button class="pfbtn" onclick="fSrc('haojiao',this)">皓角</button>
+    <button class="pfbtn" onclick="fSrc('gooaye',this)">股癌</button>
+    <button class="pfbtn" onclick="fSrc('ieo',this)">IEO</button>
+    <button class="pfbtn" onclick="fSrc('macromicro',this)">M平方</button>
+    <button class="pfbtn" onclick="fSent('bullish',this)">偏多</button>
+    <button class="pfbtn" onclick="fSent('bearish',this)">偏空</button>
+    <button class="pfbtn" onclick="fSent('neutral',this)">觀望</button>
+  </div>
+  <div class="swrap"><span class="s-ico">🔍</span><input class="sinput" type="text" placeholder="搜尋集數、關鍵字…" oninput="fSearch(this.value)"></div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);margin-bottom:10px;" id="epcnt"></div>
+  <div class="eplist" id="eplist"></div>
+  <div style="text-align:center;padding:40px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3);display:none;" id="nores">找不到相關集數</div>
+</div>
+
+<footer>
+  數據：TWSE · MacroMicro · Yahoo Finance · Investing.com · CryptoQuant · 鉅亨網 · Bernstein · JPMorgan · PTT 股版<br>
+  Podcast：財經皓角 · 股癌 Gooaye · IEO 看什麼 · 財經M平方<br>
+  本儀表板為教育整理用途，不構成任何投資建議 · AI 由 Claude claude-sonnet-4-20250514 驅動
+</footer>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav z">
+  <button class="bnav-btn active" onclick="switchTab('market',this)" id="nav-market"><div class="bnav-icon">🌐</div><div>市場</div></button>
+  <button class="bnav-btn" onclick="switchTab('stocks',this)" id="nav-stocks"><div class="bnav-icon">📊</div><div>個股</div></button>
+  <button class="bnav-btn" onclick="switchTab('sentiment',this)" id="nav-sentiment"><div class="bnav-icon">🧭</div><div>情緒</div></button>
+  <button class="bnav-btn" onclick="switchTab('watchlist',this)" id="nav-watchlist"><div class="bnav-icon">⭐</div><div>自選</div></button>
+  <button class="bnav-btn" onclick="switchTab('portfolio',this)" id="nav-portfolio"><div class="bnav-icon">💼</div><div>持倉</div></button>
+  <button class="bnav-btn" onclick="switchTab('simulator',this)" id="nav-simulator"><div class="bnav-icon">🎯</div><div>模擬</div></button>
+  <button class="bnav-btn" onclick="switchTab('ai',this)" id="nav-ai"><div class="bnav-icon">✦</div><div>AI</div></button>
+  <button class="bnav-btn" onclick="switchTab('pod',this)" id="nav-pod"><div class="bnav-icon">🎙</div><div>Podcast</div></button>
+</nav>
+
+<script>
+// ══ API KEY ══
+function getKey(){ return localStorage.getItem('anthropic_key')||''; }
+// ══ API 設定（透過 Cloudflare Worker 中繼，Key 隱藏在伺服器端）══
+const WORKER_URL = 'https://market-pulse.founderai813.workers.dev'; // ← 填入你的 Worker URL
+
+const GEMINI_MODEL = 'gemini-2.0-flash';
+
+// 統一 API 入口：Anthropic 格式 → Gemini 格式 → 透過 Worker 發送
+async function apiFetch(body) {
+  const systemPrompt = body.system || '';
+  const messages = body.messages || [];
+  const useSearch = (body.tools || []).some(t => t.type?.includes('web_search') || t.name === 'web_search');
+
+  // 轉換成 Gemini 格式
+  const contents = messages.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: typeof m.content === 'string' ? m.content : (m.content?.[0]?.text || '') }]
+  }));
+
+  const geminiBody = {
+    contents,
+    generationConfig: { maxOutputTokens: body.max_tokens || 1000 }
+  };
+
+  if (systemPrompt) {
+    geminiBody.system_instruction = { parts: [{ text: systemPrompt }] };
+  }
+
+  if (useSearch) {
+    geminiBody.tools = [{ google_search: {} }];
+  }
+
+  const r = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(geminiBody)
+  });
+
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    throw new Error(e?.error || 'Worker 錯誤 HTTP ' + r.status);
+  }
+
+  const data = await r.json();
+
+  // 把 Gemini 回應轉成 Anthropic 格式（讓其他程式碼不用改）
+  const text = data.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
+  return { content: [{ type: 'text', text }] };
+}
+
+// UI 狀態
+function updateKeyStatus() {
+  const btn = document.getElementById('key-btn');
+  const st = document.getElementById('key-status');
+  const ic = document.getElementById('key-icon');
+  const ready = WORKER_URL && !WORKER_URL.includes('YOUR_WORKER');
+  if (st) st.textContent = ready ? 'AI 已啟用 ✓' : '⚠ Worker 未設定';
+  if (ic) ic.textContent = ready ? '✅' : '⚠';
+  if (btn) {
+    btn.style.background = ready ? 'rgba(0,255,157,.1)' : 'rgba(255,51,85,.1)';
+    btn.style.borderColor = ready ? 'rgba(0,255,157,.35)' : 'rgba(255,51,85,.35)';
+    btn.style.color = ready ? 'var(--grn)' : '#ff6680';
+    btn.onclick = ready ? null : () => alert('請在 HTML 第一行填入你的 Cloudflare Worker URL');
+    btn.style.cursor = ready ? 'default' : 'pointer';
+  }
+}
+function openKeyModal() {}
+function closeKeyModal() {}
+function getKey() { return WORKER_URL; }
+
+
+
+// ══ TAB ══
+function switchTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══ PRICE MAP ══
+const FX={TWD:1/32,HKD:1/7.8,USD:1};
+const PM={
+  tsm:{name:'台積電',price:1840,currency:'TWD',display:'NT$1,840'},
+  mu:{name:'美光科技',price:422.9,currency:'USD',display:'$422.90'},
+  nvda:{name:'NVIDIA',price:172.7,currency:'USD',display:'$172.70'},
+  foxconn:{name:'鴻海',price:212,currency:'TWD',display:'NT$212'},
+  delta:{name:'台達電',price:1440,currency:'TWD',display:'NT$1,440'},
+  mtk:{name:'聯發科',price:1700,currency:'TWD',display:'NT$1,700'},
+  winbond:{name:'華邦電',price:110,currency:'TWD',display:'NT$110'},
+  tencent:{name:'騰訊',price:320,currency:'HKD',display:'HK$320'},
+  xiaomi:{name:'小米',price:28,currency:'HKD',display:'HK$28'},
+  btc:{name:'Bitcoin',price:70694,currency:'USD',display:'$70,694'},
+  eth:{name:'Ethereum',price:2480,currency:'USD',display:'$2,480'},
+};
+function toUSD(p,c){return p*(FX[c]||1);}
+function fmtUSD(n){return (n<0?'-$':'$')+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+// ══ POD STOCKS ══
+const POD_STOCKS=[
+  {id:'tsm',name:'台積電',code:'2330.TW / TSM',cat:'tw',src:'both',srcName:'Podcast + PTT',srcDate:'3/14–21',srcNote:'PTT 推文 191+，Podcast 五星 ★★★★★',price:'NT$1,840',chg:'ADR $329 ▼2.9%',dir:'dn',thesis:'全球晶圓代工市占 70%+，CoWoS 先進封裝不可替代，2026 Capex $52–56B（▲32%），AI 晶片 CAGR +60%。',risk:'伊朗衝突影響氦氣供應；外資持續賣超，月線跌破。',data:[['PTT 推文熱度','191 推（3/15）','g'],['分析師均值目標','$430（+31%）','g'],['Bernstein 目標','$351（+20%）','g'],['下季財報','2026/04/16','']]},
+  {id:'nvda',name:'NVIDIA',code:'NVDA · NASDAQ',cat:'us',src:'both',srcName:'股癌 EP645 + PTT',srcDate:'3/15–18',srcNote:'GTC 2026，PTT+Podcast 雙來源 ★★★★★',price:'$172.70',chg:'▼3.28%',dir:'dn',thesis:'GTC 2026 發布 NemoClaw Agent 平台；PTT 熱議馬斯克 7 天內公布世界最大晶片廠計畫。',risk:'估值偏高（P/E 32x）；AMD 追趕；美伊衝突影響氦氣供應鏈。',data:[['PTT 推文熱度','179 推',''],['52W 範圍','$86–$256',''],['GTC 主軸','NemoClaw / Feynman 1.6nm','g'],['分析師評等','Strong Buy','g']]},
+  {id:'nanya',name:'南亞科',code:'3260.TW',cat:'tw',src:'ptt',srcName:'PTT 股版',srcDate:'3/15',srcNote:'PTT 熱門標的文，記憶體循環受惠 ★★★★☆',price:'NT$72',chg:'▼10%',dir:'dn',thesis:'Micron 財報驗證記憶體超級循環，南亞科為台股最直接受惠標的之一，DRAM 產品與 Micron 高度同向。',risk:'今日台股大震盪 ▼10%；需等市場情緒穩定後再評估。',data:[['PTT 標的文推文','84 推（3/15）','g'],['邏輯','Micron 財報受惠鏈','g'],['產品','DRAM',''],['今日','▼10%（恐慌殺盤）','r']]},
+  {id:'mu',name:'美光科技',code:'MU · NASDAQ',cat:'us',src:'both',srcName:'IEO + PTT',srcDate:'3/14–19',srcNote:'財報大爆發，記憶體超級循環確認 ★★★★★',price:'$422.90',chg:'▼4.81%',dir:'dn',thesis:'Q2 FY26 營收年增 196%，毛利率 74.9%，下季展望 81%，超級循環確立。三星計劃供應 HBM4 給 OpenAI。',risk:'消費記憶體（Crucial）退出短線衝擊；整體市場偏空拖累。',data:[['營收年增','+196%','g'],['毛利率','74.9%（下季 81%）','g'],['EPS','$19.15（年增10倍）','g'],['分析師目標（高）','上看 $770','g']]},
+  {id:'evergreen',name:'長榮海運',code:'2603.TW',cat:'tw',src:'ptt',srcName:'PTT 股版',srcDate:'3/14–15',srcNote:'PTT 熱門：中東戰爭財，現金股利 16 元 ★★★★☆',price:'NT$205',chg:'中東題材',dir:'up',thesis:'伊朗封鎖荷莫茲海峽導致航運運費大漲；PTT 點名「中東衝突不排除持久戰，25 檔可望發戰爭財」。',risk:'若美伊快速停火則運費急速回落；荷莫茲局勢仍有變數。',data:[['PTT 推文熱度','109 推（3/15新聞文）','g'],['現金股利','16 元','g'],['受惠邏輯','中東衝突 → 運費漲','g'],['風險','停火則邏輯瓦解','r']]},
+  {id:'tpchem',name:'台塑化',code:'6505.TW',cat:'tw',src:'ptt',srcName:'PTT 股版',srcDate:'3/14–15',srcNote:'PTT 標的文多，杜金龍點名 ★★★☆☆',price:'NT$81',chg:'油價題材',dir:'up',thesis:'WTI 原油飆破 $98，荷莫茲海峽封鎖推升能源成本，台塑化轉嫁能力強。PTT 多方標的文出現，杜金龍按讚。',risk:'若美伊停火油價急速回落；下游化學品需求受全球景氣壓制。',data:[['PTT 標的文','解惑多（3/15）','g'],['受惠邏輯','油價漲 → 台塑化受惠','g'],['WTI 現價','$98.23（▲2.17%）','g'],['風險','停火則油價急跌','r']]},
+  {id:'foxconn',name:'鴻海精密',code:'2317.TW',cat:'tw',src:'ieo',srcName:'IEO 看什麼',srcDate:'3/19',srcNote:'AI 伺服器+機器人雙主線 ★★★★☆',price:'NT$212',chg:'▲2.08%',dir:'up',thesis:'NVIDIA GB200 AI 伺服器組裝主力，GTC 後算力基建訂單能見度高；NemoClaw 機器人產線佈局為新成長點。',risk:'外資持續賣超；機器人業務仍處早期。',data:[['主要業務','NVIDIA GB200 組裝','g'],['新興主線','機器人產線佈局','g'],['外資動向','持續賣超','r']]},
+  {id:'btc',name:'Bitcoin',code:'BTC / USD',cat:'crypto',src:'ieo',srcName:'IEO + PTT',srcDate:'3/18–19',srcNote:'$70K 支撐，ETF 淨流入 ★★★★☆',price:'$70,694',chg:'▼0.26%',dir:'warn',thesis:'ETF 連5日淨流入 +$761M（IBIT 主導）；鏈上巨鯨持續增持；CLARITY 法案通過機率 60%。',risk:'熊旗形態；跌破 $70K 觸發 $275M 多單清算；Fed 鷹派三重壓制。',data:[['24H 範圍','$69,517–$71,261',''],['關鍵支撐','$70K（跌破觸發清算）','r'],['ETF 5日淨流入','+$761M','g'],['ATH','$126,073（▼44%）','r']]},
+  {id:'tencent',name:'騰訊控股',code:'00700.HK',cat:'hk',src:'haojiao',srcName:'財經皓角',srcDate:'3/19',srcNote:'財報後削回購轉 AI ★★★★☆',price:'HK$320',chg:'財報後 ▼7%',dir:'dn',thesis:'微信月活超 13 億，2024 全年收入人民幣 7,026 億（+11%）；AI 投資加碼長線利多。',risk:'削減回購引發短線股東回報疑慮；外資持續流出。',data:[['月活躍用戶','微信超 13 億',''],['2024 全年收入','人民幣 7,026 億（+11%）',''],['財報後反應','▼近 7%','r'],['市值','約 HK$4.36 兆','']]},
+  {id:'delta',name:'台達電',code:'2308.TW',cat:'tw',src:'both',srcName:'IEO + PTT',srcDate:'3/14–19',srcNote:'杜金龍按讚，逆勢強勢 ★★★☆☆',price:'NT$1,440',chg:'▲5.88%',dir:'up',thesis:'PTT：杜金龍按讚，看好震盪格局核心標的。AI 資料中心電源管理核心供應商，算力需求每兩年翻倍。',risk:'整體市場走弱時仍受外資賣壓拖累。',data:[['PTT 提及','杜金龍點名（3/14）','g'],['今日漲幅','+5.88%（逆勢）','g'],['核心產品','AI 伺服器電源 / 散熱',''],['第二主線','電動車充電','g']]},
+];
+
+function renderDefaultStocks(data){
+  const grid=document.getElementById('stocks-grid');
+  const stocks=data||POD_STOCKS;
+  const catLabel={tw:'🇹🇼 台股',us:'🇺🇸 美股',hk:'🇭🇰 港股',crypto:'₿ 加密'};
+  const sc={up:'var(--grn)',dn:'#ff6680',warn:'var(--gold)'};
+  const srcCls={haojiao:'haojiao',gooaye:'gooaye',ieo:'ieo',macromicro:'macro',ptt:'ptt',both:'both'};
+  grid.innerHTML=stocks.map((s,idx)=>{
+    const c=sc[s.dir]||'var(--gold)';
+    const cls=srcCls[s.src]||'haojiao';
+    return `<div style="background:var(--s2);border:1px solid var(--b2);padding:18px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${c},transparent);"></div>
+      <div style="position:absolute;top:13px;left:13px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--b3);font-weight:700;">#${idx+1}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;margin-left:20px;">
+        <div><div style="font-size:18px;font-weight:900;color:#fff;">${s.name}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-top:2px;">${s.code} · ${catLabel[s.cat]||''}</div></div>
+        <div style="text-align:right;flex-shrink:0;"><div style="font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:${c};">${s.price}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c};margin-top:2px;">${s.chg}</div></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;"><span class="pod-src-tag ${cls}">${s.srcName}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);border:1px solid var(--b2);padding:2px 7px;">${s.srcDate}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);">${s.srcNote}</span></div>
+      <div style="border-top:1px solid var(--b2);border-left:1px solid var(--b2);display:grid;grid-template-columns:1fr 1fr;margin-bottom:10px;">${s.data.map(([l,v,cv])=>`<div style="padding:6px 11px;border-right:1px solid var(--b2);border-bottom:1px solid var(--b2);"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-bottom:2px;">${l}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:${cv==='g'?'var(--grn)':cv==='r'?'#ff6680':'var(--t2)'};">${v}</div></div>`).join('')}</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:6px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--grn);font-weight:700;margin-right:6px;">▲</span>${s.thesis}</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:12px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#ff6680;font-weight:700;margin-right:6px;">▼</span>${s.risk}</div>
+      <button onclick='q("幫我深度分析 ${s.name}（${s.code}），今日最新狀況、短線操作建議和長線投資邏輯。")' style="width:100%;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px;cursor:pointer;">✦ AI 深度分析</button>
+    </div>`;
+  }).join('');
+}
+
+// ══ REFRESH STOCKS ══
+let isRefreshingStocks=false;
+async function refreshStocksPage(){
+  if(isRefreshingStocks) return;
+  isRefreshingStocks=true;
+  const btn=document.getElementById('stocks-refresh-btn');
+  const txt=document.getElementById('stocks-refresh-txt');
+  const prog=document.getElementById('stocks-progress');
+  btn.style.opacity='.5'; btn.style.pointerEvents='none';
+  prog.style.display='block';
+  const today=new Date();
+  const dateStr=`${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+  const timeStr=today.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+  const updated=[...POD_STOCKS];
+  for(let i=0;i<POD_STOCKS.length;i++){
+    const s=POD_STOCKS[i];
+    prog.textContent=`↻ 更新中 ${i+1}/${POD_STOCKS.length}：${s.name}…`;
+    try{
+      const res=await apiFetch({model:'claude-sonnet-4-20250514',max_tokens:400,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:`今天是${dateStr}。搜尋${s.name}（${s.code}）最新股價，只回JSON：{"price":"含幣別","chg":"含▲▼","dir":"up或dn或warn","thesis":"最新1句","risk":"最新風險1句"}`}]});
+      const tb=res.content?.find(b=>b.type==='text');
+      if(tb?.text){const jm=tb.text.match(/\{[\s\S]*\}/);if(jm){const u=JSON.parse(jm[0]);updated[i]={...s,price:u.price||s.price,chg:u.chg||s.chg,dir:u.dir||s.dir,thesis:u.thesis||s.thesis,risk:u.risk||s.risk};}}
+    }catch(e){ if(e.message==='請先設定 API Key'){prog.textContent='請先設定 API Key';break;} }
+    renderDefaultStocks(updated);
+  }
+  document.getElementById('stocks-date').textContent=`${dateStr} ${timeStr}（即時）`;
+  prog.style.display='none';
+  btn.style.opacity='1'; btn.style.pointerEvents='auto';
+  txt.textContent='更新這頁';
+  isRefreshingStocks=false;
+}
+
+// ══ SEARCH STOCK ══
+let isSearching=false;
+async function searchStock(q2){
+  const q=q2||document.getElementById('stock-search-input').value.trim();
+  if(!q||isSearching) return;
+  isSearching=true;
+  const btn=document.getElementById('stock-search-btn');
+  btn.textContent='搜尋中...'; btn.style.opacity='.5';
+  document.getElementById('stock-result-area').style.display='none';
+  document.getElementById('stock-loading').style.display='block';
+  const today=new Date();
+  const dateStr=`${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+  try{
+    const res=await apiFetch({model:'claude-sonnet-4-20250514',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:`今天是${dateStr}。搜尋「${q}」最新股價與分析，只回JSON：{"name":"名稱","code":"代號","market":"台股/美股/港股/加密/其他","price":"現時價格","chg":"漲跌幅","dir":"up或dn或warn","week_chg":"本週漲跌","year_high":"52週最高","year_low":"52週最低","mktcap":"市值","analyst_target":"分析師目標價","sentiment":"bull或bear或neutral","short_thesis":"多方論點1-2句","risk":"主要風險1-2句","recent_news":"最近重要消息1-2句","updated":"${dateStr}"}`}]});
+    const tb=res.content?.find(b=>b.type==='text');
+    if(!tb?.text) throw new Error('no text');
+    const jm=tb.text.match(/\{[\s\S]*\}/);
+    if(!jm) throw new Error('no json');
+    const d=JSON.parse(jm[0]);
+    renderSearchCard(d);
+  }catch(e){
+    if(e.message==='請先設定 API Key') return;
+    document.getElementById('stock-result-area').style.display='block';
+    document.getElementById('stock-result-card').innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#ff6680;padding:14px;border:1px solid rgba(255,51,85,.3);background:rgba(255,51,85,.08);">⚠ 搜尋失敗：${e.message}</div>`;
+  }finally{
+    isSearching=false;
+    btn.textContent='搜尋 ↵'; btn.style.opacity='1';
+    document.getElementById('stock-loading').style.display='none';
+  }
+}
+function quickSearch(q){document.getElementById('stock-search-input').value=q; searchStock(q);}
+function renderSearchCard(d){
+  const sc={up:'var(--grn)',dn:'#ff6680',warn:'var(--gold)',bull:'var(--grn)',bear:'#ff6680',neutral:'var(--gold)'};
+  const c=sc[d.dir]||'var(--gold)'; const sc2=sc[d.sentiment]||'var(--gold)';
+  const rows=[[' 本週漲跌',d.week_chg],[' 52週最高',d.year_high],[' 52週最低',d.year_low],[' 市值',d.mktcap],[' 本益比',d.pe||'--'],[' 分析師目標',d.analyst_target||'--']];
+  document.getElementById('stock-result-area').style.display='block';
+  document.getElementById('stock-result-label').textContent=d.name;
+  document.getElementById('stock-result-card').innerHTML=`<div style="background:var(--s2);border:1px solid var(--b2);padding:18px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${c},transparent);"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;">
+      <div><div style="font-size:20px;font-weight:900;color:#fff;">${d.name}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);margin-top:3px;">${d.code} · ${d.market}</div></div>
+      <div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:${c};">${d.price}</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${c};margin-top:2px;">${d.chg}</div></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 10px;background:${sc2}22;border:1px solid ${sc2}55;color:${sc2};">● ${d.sentiment==='bull'?'偏多':d.sentiment==='bear'?'偏空':'中性'}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 10px;border:1px solid var(--b2);color:var(--t3);">更新：${d.updated}</span></div>
+    <div style="border-top:1px solid var(--b2);border-left:1px solid var(--b2);display:grid;grid-template-columns:1fr 1fr;margin-bottom:12px;">${rows.map(([l,v])=>`<div style="padding:6px 11px;border-right:1px solid var(--b2);border-bottom:1px solid var(--b2);"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-bottom:2px;">${l}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);font-weight:600;">${v||'--'}</div></div>`).join('')}</div>
+    ${d.short_thesis?`<div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:6px;"><span style="color:var(--grn);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;margin-right:6px;">▲</span>${d.short_thesis}</div>`:''}
+    ${d.risk?`<div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:6px;"><span style="color:#ff6680;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;margin-right:6px;">▼</span>${d.risk}</div>`:''}
+    ${d.recent_news?`<div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:12px;"><span style="color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;margin-right:6px;">◆</span>${d.recent_news}</div>`:''}
+    <button onclick='q("幫我深度分析 ${d.name}（${d.code}），短線操作建議和長線投資邏輯。")' style="width:100%;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px;cursor:pointer;">✦ AI 深度分析</button>
+  </div>`;
+}
+
+// ══ SENTIMENT ══
+let isSentLoading=false;
+async function runSentiment(src){
+  if(isSentLoading) return;
+  isSentLoading=true;
+  const isMarket=src==='market';
+  const btnId=isMarket?'msent-btn':'sent-refresh-btn';
+  const iconId=isMarket?'msent-icon':'sent-icon';
+  const txtId=isMarket?'msent-txt':'sent-txt';
+  const btn=document.getElementById(btnId);
+  if(!btn){isSentLoading=false;return;}
+  btn.style.opacity='.5'; btn.style.pointerEvents='none';
+  document.getElementById(iconId).style.animation='spin 0.8s linear infinite';
+  document.getElementById(txtId).textContent='分析中...';
+
+  const today=new Date();
+  const dateStr=`${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+  const timeStr=today.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+
+  const sc=s=>s==='偏多'?'var(--grn)':s==='偏空'?'#ff6680':'var(--gold)';
+  const setM=(vid,svid,obj)=>{const ve=document.getElementById(vid),se=document.getElementById(svid);if(ve&&obj){ve.textContent=obj.sentiment||'--';ve.style.color=sc(obj.sentiment);}if(se&&obj){se.textContent=(obj.summary||'').substring(0,38)+'…';}};
+
+  try{
+    const res=await apiFetch({model:'claude-sonnet-4-20250514',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:
+`今天是${dateStr}。搜尋台灣券商晨報、Reddit r/stocks r/wallstreetbets、X/Twitter財經、PTT股版+Yahoo股市留言今日情緒，只回JSON：
+{"score":0到100整數,"label":"極度恐慌或恐慌或謹慎或中性或樂觀或貪婪或極度貪婪",
+"broker":{"sentiment":"偏多或中性或偏空","summary":"券商晨報觀點2句","highlight":"今日重點觀點1句","source":"元大·富邦·凱基·國泰"},
+"reddit":{"sentiment":"偏多或中性或偏空","summary":"Reddit今日情緒2句","hot_topics":["話題1","話題2","話題3"],"source":"r/stocks·r/wallstreetbets"},
+"twitter":{"sentiment":"偏多或中性或偏空","summary":"X/Twitter今日財經情緒2句","trending":["#熱搜1","#熱搜2","#熱搜3"],"source":"X/Twitter財經KOL"},
+"community":{"sentiment":"偏多或中性或偏空","summary":"PTT+Yahoo今日情緒2句","ptt_hot":"PTT最熱討論1句","yahoo_hot":"Yahoo留言最多個股","source":"PTT股版·Yahoo股市留言"},
+"keywords":["關鍵字1","關鍵字2","關鍵字3","關鍵字4","關鍵字5","關鍵字6","關鍵字7","關鍵字8"],
+"macro_note":"整合四來源後今日最重要情緒觀察2句"}`}]});
+
+    const tb=res.content?.find(b=>b.type==='text');
+    if(!tb?.text) throw new Error('no text');
+    const jm=tb.text.match(/\{[\s\S]*\}/);
+    if(!jm) throw new Error('no json');
+    const d=JSON.parse(jm[0]);
+
+    const score=Math.max(0,Math.min(100,d.score||50));
+    const scoreColor=score<20?'#ff3355':score<40?'#ff7744':score<60?'var(--gold)':score<80?'#44cc88':'var(--grn)';
+
+    // 市場分頁元素
+    if(isMarket){
+      const needle=document.getElementById('ms-needle');
+      const lbl=document.getElementById('ms-label-badge');
+      const mn=document.getElementById('ms-macro-note');
+      if(needle) needle.style.left=score+'%';
+      if(lbl){lbl.textContent=`${score} · ${d.label||'中性'}`;lbl.style.color=scoreColor;}
+      setM('ms-broker','ms-broker-s',d.broker);
+      setM('ms-reddit','ms-reddit-s',d.reddit);
+      setM('ms-twitter','ms-twitter-s',d.twitter);
+      setM('ms-community','ms-community-s',d.community);
+      if(mn&&d.macro_note){mn.textContent=d.macro_note;mn.style.display='block';}
+    } else {
+      // 情緒分頁元素
+      const needle=document.getElementById('sent-needle');
+      const lbl=document.getElementById('sent-label');
+      const sc2=document.getElementById('sent-score');
+      if(needle) needle.style.left=score+'%';
+      if(lbl){lbl.textContent=d.label||'中性';lbl.style.color=scoreColor;}
+      if(sc2){sc2.textContent=score;sc2.style.color=scoreColor;}
+      setM('sm-broker','sm-broker-s',d.broker);
+      setM('sm-reddit','sm-reddit-s',d.reddit);
+      setM('sm-twitter','sm-twitter-s',d.twitter);
+      setM('sm-community','sm-community-s',d.community);
+      if(document.getElementById('sent-date')) document.getElementById('sent-date').textContent=`${dateStr} ${timeStr}（即時）`;
+    }
+
+    // 詳細卡片
+    const detailsId=isMarket?'ms-details':'sent-details';
+    const kwId=isMarket?'ms-keywords':'sent-keywords';
+    const kwWrapId=isMarket?'ms-keywords-wrap':'sent-keywords-wrap';
+    const tS=color=>`font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 9px;border:1px solid ${color}55;color:${color};background:${color}15;display:inline-block;margin:2px;`;
+    const makeCard=(emoji,title,accent,obj,extra='')=>!obj?'':
+      `<div style="background:var(--s2);border:1px solid var(--b2);border-left:3px solid ${accent};padding:13px 15px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;flex-wrap:wrap;gap:6px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${accent};letter-spacing:.1em;">${emoji} ${title}</span>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${sc(obj.sentiment)};">${obj.sentiment||'--'}</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);border:1px solid var(--b2);padding:2px 7px;">${obj.source||''}</span></div>
+        </div>
+        <div style="font-size:14px;color:var(--t2);line-height:1.8;margin-bottom:${extra?'9':'0'}px;">${obj.summary||''}</div>
+        ${extra}
+      </div>`;
+
+    let det='';
+    if(d.macro_note) det+=`<div style="background:rgba(204,136,255,.1);border:1px solid rgba(204,136,255,.3);border-left:3px solid var(--purple);padding:13px 15px;margin-bottom:8px;"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:.1em;margin-bottom:6px;">◆ 綜合情緒觀察</div><div style="font-size:14px;color:var(--t2);line-height:1.8;">${d.macro_note}</div></div>`;
+    det+=makeCard('🏦','券商晨報','var(--gold)',d.broker,d.broker?.highlight?`<div style="font-size:13px;color:var(--t3);border-top:1px solid var(--b2);padding-top:7px;">📋 ${d.broker.highlight}</div>`:'');
+    det+=makeCard('🌐','Reddit','#ff6680',d.reddit,(d.reddit?.hot_topics||[]).length?`<div>${d.reddit.hot_topics.map(t=>`<span style="${tS('#ff6680')}">${t}</span>`).join('')}</div>`:'');
+    det+=makeCard('𝕏','X / Twitter','var(--blue)',d.twitter,(d.twitter?.trending||[]).length?`<div>${d.twitter.trending.map(t=>`<span style="${tS('var(--blue)')}">${t}</span>`).join('')}</div>`:'');
+    det+=makeCard('💬','PTT + Yahoo','#ff7060',d.community,`${d.community?.ptt_hot?`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);border-top:1px solid var(--b2);padding-top:7px;">🔥 PTT：${d.community.ptt_hot}</div>`:''}${d.community?.yahoo_hot?`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);margin-top:4px;">💬 Yahoo：${d.community.yahoo_hot}</div>`:''}`);
+
+    const detEl=document.getElementById(detailsId);
+    if(detEl) detEl.innerHTML=det;
+
+    if(d.keywords?.length){
+      const kc=['var(--grn)','var(--gold)','#ff7060','var(--blue)','var(--purple)','var(--cyan)','#ff6680','#ffaa32'];
+      const kwEl=document.getElementById(kwId);
+      if(kwEl) kwEl.innerHTML=d.keywords.map((k,i)=>`<button onclick='q("幫我分析 ${k} 目前的市場狀況和投資機會")' style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 12px;border:1px solid ${kc[i%8]}55;color:${kc[i%8]};background:${kc[i%8]}15;cursor:pointer;">${k}</button>`).join('');
+      const kwWrap=document.getElementById(kwWrapId);
+      if(kwWrap) kwWrap.style.display='block';
+    }
+
+  }catch(e){
+    if(e.message==='請先設定 API Key') return;
+    const detId=isMarket?'ms-details':'sent-details';
+    const el=document.getElementById(detId);
+    if(el) el.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#ff6680;padding:12px;border:1px solid rgba(255,51,85,.3);background:rgba(255,51,85,.08);">⚠ 情緒分析失敗：${e.message}</div>`;
+  }finally{
+    isSentLoading=false;
+    btn.style.opacity='1'; btn.style.pointerEvents='auto';
+    document.getElementById(iconId).style.animation='';
+    document.getElementById(txtId).textContent='重新分析';
+  }
+}
+
+// ══ LIVE UPDATE ══
+let isUpdating=false;
+async function liveUpdate(){
+  if(isUpdating) return;
+  isUpdating=true;
+  const btn=document.getElementById('update-btn');
+  const bar=document.getElementById('update-bar');
+  btn.style.opacity='.5'; btn.style.pointerEvents='none';
+  document.getElementById('update-icon').style.animation='spin 0.8s linear infinite';
+  document.getElementById('update-txt').textContent='更新中...';
+  bar.style.display='block';
+  const today=new Date();
+  const dateStr=`${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+  const timeStr=today.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+  try{
+    const res=await apiFetch({model:'claude-sonnet-4-20250514',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:
+`今天是${dateStr}。搜尋最新即時財經數據，只回JSON：
+{"sp500":{"value":"現值","chg":"▲/▼x.xx%","dir":"up或dn或warn"},"twii":{"value":"現值","chg":"▲/▼x.xx%","dir":"up或dn或warn"},"hsi":{"value":"現值","chg":"▲/▼x.xx%","dir":"up或dn或warn"},"btc":{"value":"$現值","chg":"▲/▼x.xx%","dir":"up或dn或warn"},"eth":{"value":"$現值","chg":"▲/▼x.xx%","dir":"up或dn或warn"},"wti":{"value":"$現值","chg":"▲/▼x.xx%","dir":"up或dn或warn"},"gold":{"value":"$現值","chg":"▲/▼x.xx%","dir":"up或dn或warn"},"fi_tw":{"value":"+/-xx億","dir":"up或dn"},"sentiment":"樂觀或謹慎或恐慌","macro_summary":"今日市場最重要的宏觀敘事2-3句","news":[{"title":"新聞1","summary":"摘要2-3句","impact":"bull或bear或neutral"},{"title":"新聞2","summary":"摘要2-3句","impact":"bull或bear或neutral"},{"title":"新聞3","summary":"摘要2-3句","impact":"bull或bear或neutral"}]}`}]});
+
+    const tb=res.content?.find(b=>b.type==='text');
+    if(!tb?.text) throw new Error('no text');
+    const jm=tb.text.match(/\{[\s\S]*\}/);
+    if(!jm) throw new Error('no json');
+    const d=JSON.parse(jm[0]);
+
+    const tm={'tk-sp':d.sp500,'tk-tw':d.twii,'tk-hk':d.hsi,'tk-btc':d.btc,'tk-eth':d.eth,'tk-wti':d.wti,'tk-gold':d.gold};
+    Object.entries(tm).forEach(([id,obj])=>{if(!obj)return;const ve=document.getElementById(id),ce=document.getElementById(id+'-c');if(ve){ve.textContent=obj.value;ve.className='ti-v '+(obj.dir||'');}if(ce){ce.textContent=obj.chg;ce.className='ti-c '+(obj.dir||'');}});
+    if(d.fi_tw){const e=document.getElementById('tk-fi');if(e){e.textContent=d.fi_tw.value;e.className='ti-v '+(d.fi_tw.dir||'');}}
+    if(d.twii){const e=document.getElementById('dc-tw');if(e){e.textContent=d.twii.value;e.className='dc-v '+(d.twii.dir||'');}}
+    const np=s=>parseFloat((s||'').replace(/[^0-9.]/g,''))||0;
+    if(d.btc?.value){PM.btc.price=np(d.btc.value);PM.btc.display=d.btc.value;}
+    if(d.eth?.value){PM.eth.price=np(d.eth.value);PM.eth.display=d.eth.value;}
+    document.getElementById('last-updated').textContent=`MAX · 即時更新 ${dateStr} ${timeStr}`;
+    const area=document.getElementById('live-update-area');
+    area.style.display='block';
+    document.getElementById('live-ts').textContent=`${dateStr} ${timeStr}`;
+    let html='';
+    if(d.macro_summary) html+=`<div class="update-card"><div class="update-card-title">✦ 今日宏觀摘要</div><div class="update-card-body">${d.macro_summary}</div></div>`;
+    if(d.news?.length){const ic={bull:'var(--grn)',bear:'#ff6680',neutral:'var(--gold)'};const il={bull:'▲ 利多',bear:'▼ 利空',neutral:'◆ 中性'};html+=d.news.map(n=>`<div class="update-card" style="border-left-color:${ic[n.impact]||'var(--gold)'}"><div class="update-card-title" style="color:${ic[n.impact]||'var(--gold)'};">${il[n.impact]||'◆'} ${n.title}</div><div class="update-card-body">${n.summary}</div></div>`).join('');}
+    document.getElementById('live-cards').innerHTML=html;
+    renderPortfolio(); renderSimulator();
+  }catch(e){
+    if(e.message==='請先設定 API Key') return;
+    document.getElementById('live-update-area').style.display='block';
+    document.getElementById('live-cards').innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#ff6680;padding:12px;border:1px solid rgba(255,51,85,.3);background:rgba(255,51,85,.08);">⚠ 更新失敗：${e.message}</div>`;
+  }finally{
+    isUpdating=false;
+    btn.style.opacity='1'; btn.style.pointerEvents='auto';
+    document.getElementById('update-icon').style.animation='';
+    document.getElementById('update-txt').textContent='即時更新';
+    bar.style.display='none';
+  }
+}
+
+// ══ WATCHLIST ══
+let watchlist=JSON.parse(localStorage.getItem('wl')||'[]');
+function saveWL(){localStorage.setItem('wl',JSON.stringify(watchlist));}
+function addToWatchlist(){const inp=document.getElementById('add-input');const val=inp.value.trim();if(!val)return;const found=POD_STOCKS.find(s=>s.name.includes(val)||s.code.toLowerCase().includes(val.toLowerCase())||s.id===val.toLowerCase());if(found){if(!watchlist.includes(found.id)){watchlist.push(found.id);saveWL();}inp.value='';renderWatchlist();}else{const cid='custom_'+val;if(!watchlist.includes(cid)){watchlist.push(cid);saveWL();}inp.value='';renderWatchlist();}}
+function addPreset(name){const f=POD_STOCKS.find(s=>s.name.includes(name)||s.id===name.toLowerCase());if(f&&!watchlist.includes(f.id)){watchlist.push(f.id);saveWL();renderWatchlist();}}
+function renderWatchlist(){const el=document.getElementById('wl-list');if(!watchlist.length){el.innerHTML='<div style="text-align:center;padding:40px;font-family:\'JetBrains Mono\',monospace;font-size:13px;color:var(--t3);line-height:2.2;">自選清單是空的。<br>在上方輸入股票名稱加入。</div>';return;}const html=watchlist.map(id=>{const s=POD_STOCKS.find(x=>x.id===id);if(!s){const lb=id.replace('custom_','');return `<div class="wl-card"><button onclick="removeWL('${id}')" style="position:absolute;top:12px;right:12px;background:none;border:none;color:var(--t3);cursor:pointer;font-size:15px;">✕</button><div style="font-size:16px;font-weight:900;color:#fff;margin-bottom:8px;">${lb}</div><button class="wl-ai-btn" onclick='q("幫我分析 ${lb}，給出短線和長線觀點。")'>✦ AI 分析</button></div>`;}const dc=s.dir==='up'?'var(--grn)':s.dir==='dn'?'#ff6680':'var(--gold)';return `<div class="wl-card"><button onclick="removeWL('${s.id}')" style="position:absolute;top:12px;right:12px;background:none;border:none;color:var(--t3);cursor:pointer;font-size:15px;">✕</button><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;"><div><div style="font-size:16px;font-weight:900;color:#fff;">${s.name}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-top:2px;">${s.code}</div></div><div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;color:${dc};">${s.price}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${dc};">${s.chg}</div></div></div><div style="font-size:13px;color:var(--t3);line-height:1.7;margin-bottom:8px;">${s.thesis.substring(0,60)}…</div><button class="wl-ai-btn" onclick='q("幫我詳細分析 ${s.name}（${s.code}），短線風險、長線邏輯、現在應不應該買。")'>✦ AI 即時分析</button></div>`;}).join('');el.innerHTML=`<div class="wl-grid">${html}</div>`;}
+function removeWL(id){watchlist=watchlist.filter(x=>x!==id);saveWL();renderWatchlist();}
+
+// ══ PORTFOLIO ══
+let portfolio=JSON.parse(localStorage.getItem('portfolio')||'[]');
+function savePortfolio(){localStorage.setItem('portfolio',JSON.stringify(portfolio));}
+function addPosition(){const id=document.getElementById('ptf-sel').value;const qty=parseFloat(document.getElementById('ptf-qty').value);const costEach=parseFloat(document.getElementById('ptf-cost-input').value);const currency=document.getElementById('ptf-currency').value;const note=document.getElementById('ptf-note-input').value.trim();if(!id||!qty||!costEach){alert('請填寫股票、數量和成本');return;}const pm=PM[id];portfolio.push({id,name:pm?pm.name:id,qty,costEach,currency,note,addedAt:new Date().toLocaleDateString('zh-TW')});savePortfolio();['ptf-sel','ptf-qty','ptf-cost-input','ptf-note-input'].forEach(x=>document.getElementById(x).value='');renderPortfolio();}
+function removePosition(i){portfolio.splice(i,1);savePortfolio();renderPortfolio();}
+function renderPortfolio(){const list=document.getElementById('ptf-list');const aiBtn=document.getElementById('ptf-ai-btn');if(!portfolio.length){list.innerHTML='<div style="text-align:center;padding:32px;font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--t3);line-height:2.2;">持倉是空的。<br>在上方選擇股票並輸入成本加入。</div>';aiBtn.style.display='none';['ptf-cost','ptf-value','ptf-pnl'].forEach(x=>document.getElementById(x).textContent='--');document.getElementById('ptf-count').textContent='0';return;}aiBtn.style.display='block';let tc=0,tv=0;list.innerHTML=portfolio.map((pos,i)=>{const pm=PM[pos.id];const cp=pm?pm.price:pos.costEach,cc=pm?pm.currency:pos.currency;const cu=toUSD(pos.costEach,pos.currency)*pos.qty,vu=toUSD(cp,cc)*pos.qty;const pnl=vu-cu,pct=cu>0?(pnl/cu*100):0;tc+=cu;tv+=vu;const c=pnl>=0?'var(--grn)':'#ff6680',s=pnl>=0?'+':'';return `<div style="background:var(--s2);border:1px solid var(--b2);padding:15px;margin-bottom:8px;position:relative;"><button onclick="removePosition(${i})" style="position:absolute;top:11px;right:11px;background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;">✕</button><div style="font-size:16px;font-weight:900;color:#fff;margin-bottom:5px;">${pos.name}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:8px;">${pos.qty} 股 × ${pos.currency} ${pos.costEach.toLocaleString()} · ${pos.addedAt}${pos.note?` · 📌 ${pos.note}`:''}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;border-top:1px solid var(--b2);padding-top:8px;"><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-bottom:2px;">現時價格</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--gold);">${pm?pm.display:'---'}</div></div><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-bottom:2px;">未實現損益</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${c};">${s}${fmtUSD(pnl)}</div></div><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-bottom:2px;">報酬率</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${c};">${s}${pct.toFixed(2)}%</div></div></div></div>`;}).join('');const tp=tv-tc,tpct=tc>0?(tp/tc*100):0,tc2=tp>=0?'var(--grn)':'#ff6680';document.getElementById('ptf-cost').textContent=fmtUSD(tc);document.getElementById('ptf-value').textContent=fmtUSD(tv);const pe=document.getElementById('ptf-pnl');pe.textContent=(tp>=0?'+':'')+fmtUSD(tp);pe.style.color=tc2;document.getElementById('ptf-pnl-pct').textContent=(tp>=0?'+':'')+tpct.toFixed(2)+'%';document.getElementById('ptf-pnl-pct').style.color=tc2;document.getElementById('ptf-count').textContent=portfolio.length;}
+async function analyzePortfolio(){if(!portfolio.length)return;switchTab('ai',document.getElementById('nav-ai'));const summary=portfolio.map(pos=>{const pm=PM[pos.id];const cp=pm?pm.price:pos.costEach,cc=pm?pm.currency:pos.currency;const cu=toUSD(pos.costEach,pos.currency)*pos.qty,vu=toUSD(cp,cc)*pos.qty;const pnl=vu-cu,pct=cu>0?(pnl/cu*100).toFixed(2):0;return `${pos.name}：持有${pos.qty}股，成本${pos.currency}${pos.costEach}，現價${pm?.display||'未知'}，損益${pnl>=0?'+':''}${fmtUSD(pnl)}（${pct}%）${pos.note?'，備註：'+pos.note:''}`;}).join('\n');setTimeout(()=>sendAI(`請根據我的真實持倉分析並給出建議：\n\n${summary}\n\n請分析：1)整體配置是否均衡？2)哪些最值得續抱？3)哪些需要注意停損？4)在目前停滯性通膨環境下如何調整？`),200);}
+
+// ══ SIMULATOR ══
+const SIM_INIT=100000;
+let sim=JSON.parse(localStorage.getItem('simulator')||JSON.stringify({cash:SIM_INIT,holdings:{},log:[]}));
+function saveSim(){localStorage.setItem('simulator',JSON.stringify(sim));}
+function resetSimulator(){if(!confirm('確定重置模擬帳戶？所有交易紀錄將清除。'))return;sim={cash:SIM_INIT,holdings:{},log:[]};saveSim();renderSimulator();}
+function updateSimPrice(){const val=document.getElementById('sim-sel').value;const el=document.getElementById('sim-cur-price');if(!val){el.textContent='--';return;}const[,price,currency]=val.split(':');el.textContent=currency+' '+parseFloat(price).toLocaleString();updateSimCost();}
+function updateSimCost(){const val=document.getElementById('sim-sel').value;const qty=parseFloat(document.getElementById('sim-qty').value)||0;const el=document.getElementById('sim-est');if(!val||!qty){el.textContent='--';return;}const[,price,currency]=val.split(':');el.textContent=fmtUSD(toUSD(parseFloat(price),currency)*qty);}
+function showSimMsg(text,ok){const el=document.getElementById('sim-msg');el.textContent=text;el.style.display='block';el.style.background=ok?'rgba(0,255,157,.12)':'rgba(255,51,85,.12)';el.style.color=ok?'var(--grn)':'#ff6680';el.style.border=`1px solid ${ok?'rgba(0,255,157,.35)':'rgba(255,51,85,.35)'}`;setTimeout(()=>el.style.display='none',3500);}
+function simTrade(action){const val=document.getElementById('sim-sel').value;const qty=parseFloat(document.getElementById('sim-qty').value);if(!val||!qty||qty<=0){showSimMsg('請選擇標的並輸入數量',false);return;}const parts=val.split(':');const id=parts[0],price=parseFloat(parts[1]),currency=parts[2];const pm=PM[id]||{name:id};const costUSD=toUSD(price,currency)*qty;if(action==='buy'){if(costUSD>sim.cash){showSimMsg(`現金不足！需要 ${fmtUSD(costUSD)}，剩餘 ${fmtUSD(sim.cash)}`,false);return;}sim.cash-=costUSD;if(!sim.holdings[id])sim.holdings[id]={qty:0,avgCost:0,currency,name:pm.name};const h=sim.holdings[id];const prev=h.qty*h.avgCost;h.qty+=qty;h.avgCost=(prev+costUSD)/h.qty;sim.log.unshift({time:new Date().toLocaleTimeString('zh-TW'),action:'買入',name:pm.name,qty,price,currency,usd:costUSD});showSimMsg(`✓ 買入 ${pm.name} ${qty}單位 @ ${currency}${price.toLocaleString()}，花費 ${fmtUSD(costUSD)}`,true);}else{const h=sim.holdings[id];if(!h||h.qty<qty){showSimMsg(`持倉不足！目前持有 ${h?.qty||0} 單位`,false);return;}const pnl=costUSD-(h.avgCost*qty);sim.cash+=costUSD;h.qty-=qty;if(h.qty<0.00001)delete sim.holdings[id];sim.log.unshift({time:new Date().toLocaleTimeString('zh-TW'),action:'賣出',name:pm.name,qty,price,currency,usd:costUSD,pnl});showSimMsg(`✓ 賣出 ${pm.name} ${qty}單位，損益 ${pnl>=0?'+':''}${fmtUSD(pnl)}`,true);}saveSim();renderSimulator();}
+function renderSimulator(){let hv=0;Object.entries(sim.holdings).forEach(([id,h])=>{const pm=PM[id];if(pm)hv+=toUSD(pm.price,pm.currency)*h.qty;});const total=sim.cash+hv,pnl=total-SIM_INIT,pct=pnl/SIM_INIT*100,c=pnl>=0?'var(--grn)':'#ff6680',s=pnl>=0?'+':'';document.getElementById('sim-cash').textContent=fmtUSD(sim.cash);document.getElementById('sim-value').textContent=fmtUSD(hv);document.getElementById('sim-total').textContent=fmtUSD(total);const pe=document.getElementById('sim-pnl');pe.textContent=s+fmtUSD(pnl);pe.style.color=c;const ppe=document.getElementById('sim-pnl-pct');ppe.textContent=s+pct.toFixed(2)+'%';ppe.style.color=c;const holdEl=document.getElementById('sim-holdings');const entries=Object.entries(sim.holdings);if(!entries.length){holdEl.innerHTML='<div style="text-align:center;padding:18px;font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--t3);">尚無持倉 — 在上方下單後顯示</div>';}else{holdEl.innerHTML=entries.map(([id,h])=>{const pm=PM[id];const mv=pm?toUSD(pm.price,pm.currency)*h.qty:0;const cv=h.avgCost*h.qty,p=mv-cv,p2=cv>0?p/cv*100:0,c2=p>=0?'var(--grn)':'#ff6680',s2=p>=0?'+':'';return `<div style="background:var(--s2);border:1px solid var(--b2);padding:13px 15px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;"><div style="font-size:15px;font-weight:900;color:#fff;">${h.name}</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${c2};">${s2}${fmtUSD(p)} (${s2}${p2.toFixed(2)}%)</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">持有</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--t2);">${h.qty%1===0?h.qty:h.qty.toFixed(4)}</div></div><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">均攤成本</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--t2);">${fmtUSD(h.avgCost)}</div></div><div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">市值</div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);">${fmtUSD(mv)}</div></div></div></div>`;}).join('');}const logEl=document.getElementById('sim-log');if(!sim.log.length){logEl.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--t3);padding:10px;">尚無交易紀錄</div>';}else{logEl.innerHTML=sim.log.slice(0,30).map(l=>{const ib=l.action==='買入';const ps=l.pnl!=null?` 損益 ${l.pnl>=0?'+':''}${fmtUSD(l.pnl)}`:'';return `<div style="background:var(--s2);border:1px solid var(--b2);border-left:3px solid ${ib?'var(--grn)':'#ff6680'};padding:9px 13px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;"><span><span style="color:${ib?'var(--grn)':'#ff6680'};font-weight:700;">${l.action}</span> ${l.name} ${l.qty}股 @ ${l.currency}${l.price.toLocaleString()}${ps}</span><span style="color:var(--t3);">${l.time}</span></div>`;}).join('');}}
+async function simAIAdvice(){const entries=Object.entries(sim.holdings);let hv=0;entries.forEach(([id,h])=>{const pm=PM[id];if(pm)hv+=toUSD(pm.price,pm.currency)*h.qty;});const total=sim.cash+hv,pnl=total-SIM_INIT;const hs=entries.length?entries.map(([id,h])=>{const pm=PM[id];const mv=pm?toUSD(pm.price,pm.currency)*h.qty:0;const cv=h.avgCost*h.qty,p=mv-cv;return `${h.name}：持有${h.qty}單位，均攤成本${fmtUSD(h.avgCost)}，現值${fmtUSD(mv)}，損益${p>=0?'+':''}${fmtUSD(p)}`;}).join('\n'):'目前無持倉';const el=document.getElementById('sim-ai-output');el.style.display='block';el.innerHTML='<span style="color:var(--gold);font-family:\'JetBrains Mono\',monospace;">✦ AI 分析中...</span>';try{const res=await apiFetch({model:'claude-sonnet-4-20250514',max_tokens:800,system:`你是財經分析師，用繁體中文回答。初始資金$${SIM_INIT.toLocaleString()} USD。`,messages:[{role:'user',content:`分析我的模擬帳戶：現金${fmtUSD(sim.cash)}，持倉${fmtUSD(hv)}，總資產${fmtUSD(total)}，損益${pnl>=0?'+':''}${fmtUSD(pnl)}（${(pnl/SIM_INIT*100).toFixed(2)}%）\n持倉明細：\n${hs}\n\n請給出：1)表現評價，2)各持倉操作建議，3)在停滯性通膨環境下如何調整配置？`}]});const txt=res.content?.[0]?.text||'無法取得分析';el.innerHTML=txt.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')+'<br><br><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--t3);">⚠ AI 模擬分析，不構成真實投資建議</span>';}catch(e){el.innerHTML='⚠ AI 分析失敗，請稍後再試。';}}
+
+// ══ AI CHAT ══
+const CONTEXT=`你是一位專業的財經分析師助手，專注於台灣、香港股市及加密貨幣。請用繁體中文回答，語氣專業清晰。回答包含：1)數據支撐，2)短線 vs 長線分析，3)主要風險提示，4)最後一行加上「⚠ 以上為 AI 分析，不構成投資建議。」\n\n本週（2026年3月21日）最新市場數據：\n【總體】F&G:15（極度恐慌），VIX:26.78，S&P RSI:30.4，美債10Y:4.39%，EFFR:3.62%，WTI:$98.23（▲2.17%），停滯性通膨恐慌，巴克萊估今年最多6月一次降息\n【台股】加權33,543（跌破月線），外資賣超403億，台指期外資空單41,633口\n台積電NT$1,840，NVIDIA $172.70，美光$422.90（Q2FY26財報超預期，營收+196%），南亞科NT$72（▼10%），長榮NT$205（中東戰爭財），台塑化NT$81（油價漲受惠）\n【港股】恒指25,593（▼1.66%），北水+262億，騰訊財報後跌7%，恒科EPS預期+40%\n【加密】BTC:$70,694，ETH:$2,480，ETF5日+$761M，CLARITY法案機率60%`;
+const chatHistory=[];
+let isLoadingAI=false;
+async function sendAI(text){const inp=document.getElementById('ai-input');const msg=text||inp.value.trim();if(!msg||isLoadingAI)return;inp.value='';appendMsg('user',msg);chatHistory.push({role:'user',content:msg});setLoadingAI(true);try{const res=await apiFetch({model:'claude-sonnet-4-20250514',max_tokens:1000,system:CONTEXT,messages:chatHistory.slice(-10)});const reply=res.content?.[0]?.text||'抱歉，無法取得回應，請稍後再試。';removeTypingAI();appendMsg('ai',reply);chatHistory.push({role:'assistant',content:reply});}catch(e){removeTypingAI();if(e.message==='請先設定 API Key') appendMsg('ai','請先點右上角「🔑 設定 API Key」才能使用 AI 功能。'); else appendMsg('ai','⚠ 連接 AI 時發生錯誤：'+e.message);}finally{setLoadingAI(false);}}
+function q(text){switchTab('ai',document.getElementById('nav-ai'));setTimeout(()=>sendAI(text),100);}
+function appendMsg(role,text){const box=document.getElementById('ai-msgs');const d=document.createElement('div');d.className=`msg ${role}`;const fmt=text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');d.innerHTML=`<div class="ava">${role==='ai'?'✦':'你'}</div><div class="bubble">${fmt}</div>`;box.appendChild(d);box.scrollTop=box.scrollHeight;}
+function setLoadingAI(v){isLoadingAI=v;document.getElementById('ai-send').disabled=v;if(v){const box=document.getElementById('ai-msgs');const d=document.createElement('div');d.className='msg ai';d.id='typing';d.innerHTML='<div class="ava">✦</div><div class="bubble"><div class="typing-wrap"><span></span><span></span><span></span></div></div>';box.appendChild(d);box.scrollTop=box.scrollHeight;}}
+function removeTypingAI(){const t=document.getElementById('typing');if(t)t.remove();}
+
+// ══ PODCAST ══
+const EPS=[
+  {id:1,src:'haojiao',date:'2026/03/20',sent:'bearish',title:'股債雙殺！黃金美債也跌？為何所有資產都在跌？',pts:['所有資產同步下跌，核心是停滯性通膨憂慮升溫','中東地緣政治風險推升能源危機，加深停滯性通膨疑慮','市場敘事從 AI 基礎建設題材轉回整體經濟壓力擔憂','央行政策偏向收緊，強調密切監控並保持彈性'],tags:['停滯性通膨','股債雙殺','中東','央行'],link:'https://podcasts.apple.com/tw/podcast/游庭皓的財經皓角/id1488295306'},
+  {id:2,src:'haojiao',date:'2026/03/19',sent:'neutral',title:'鮑爾尬川普！聯準會今年還會降息嗎？',pts:['川普施壓 Fed 降息，鮑爾堅持抗通膨優先','今年降息高度不確定，市場預期持續分歧','EFFR 3.62% 持續壓制資產估值','殖利率曲線 +0.77%，衰退風險相對可控'],tags:['Fed','降息','川普','貨幣政策'],link:'https://podcasts.apple.com/tw/podcast/游庭皓的財經皓角/id1488295306'},
+  {id:3,src:'gooaye',date:'2026/03/18',sent:'neutral',title:'EP645 🎱 NVIDIA GTC 重點、AI 晶片競爭、投資策略演進',pts:['GTC 後市場對 AI 基建需求看法更趨樂觀','NVIDIA 仍主導，AMD 逐步追趕','市場情緒與基本面分歧，謹慎判斷入場時機','策略演進：從追 AI 題材轉向重視個股基本面'],tags:['NVIDIA','GTC','AI晶片','AMD'],link:'https://podcasts.apple.com/tw/podcast/股癌-gooaye/id1500839292'},
+  {id:4,src:'gooaye',date:'2026/03/14',sent:'bullish',title:'EP644 🦇 記憶體超級循環確認，偏多展望',pts:['Micron 財報超強，記憶體族群迎來結構性多頭機會','情緒面有壓力，但基本面支撐明確的個股值得關注','建議聚焦有個股論點的標的，分批布局','記憶體超級循環論點在財報中得到驗證'],tags:['Micron','記憶體','偏多','基本面'],link:'https://podcasts.apple.com/tw/podcast/股癌-gooaye/id1500839292'},
+  {id:5,src:'ieo',date:'2026/03/19',sent:'bullish',title:'Micron 記憶體超級循環爆發！GTC 後 AI 供應鏈解析',pts:['Micron 供給嚴重短缺：營收年增 196%，毛利率 74.9%','下季展望：年增 271%，毛利率 81%，EPS 增至 $19.15','記憶體超級循環在財報與股價均獲驗證，Capex 上調至 250 億','黃仁勳揭露 OpenAI、Anthropic 驚人 Token 消耗成長速度'],tags:['Micron','記憶體','GTC','AI供應鏈'],link:'https://podcasts.apple.com/tw/podcast/ieo-看什麼/id1486700278'},
+  {id:6,src:'macromicro',date:'2026/03/14',sent:'bearish',title:'EP190 After Meeting｜劇烈波動的油價、預期與行情',pts:['美伊衝突引發油價劇烈波動，布蘭特一度突破 100 美元','油價飆漲推升通膨預期，Fed 可能縮減降息計畫','大宗商品連動效應擴散至股債，系統性風險上升','衝突規模將決定油價波動幅度與持續時間'],tags:['油價','美伊衝突','Fed','大宗商品'],link:'https://podcasts.apple.com/tw/podcast/macromicro-財經m平方/id1522682178'},
+];
+const SL={haojiao:'財經皓角',gooaye:'股癌',ieo:'IEO',macromicro:'M平方'};
+const SM={bullish:{l:'偏多',c:'b'},bearish:{l:'偏空',c:'be'},neutral:{l:'觀望',c:'n'}};
+let cS='all',cSe='all',cQ='';
+function renderPod(){const list=document.getElementById('eplist'),nr=document.getElementById('nores'),cnt=document.getElementById('epcnt');const f=EPS.filter(e=>{const ms=cS==='all'||e.src===cS;const mse=cSe==='all'||e.sent===cSe;const mq=!cQ||e.title.includes(cQ)||e.tags.some(t=>t.includes(cQ))||e.pts.some(p=>p.includes(cQ));return ms&&mse&&mq;});cnt.textContent=`顯示 ${f.length} / ${EPS.length} 集`;if(!f.length){list.innerHTML='';nr.style.display='block';return;}nr.style.display='none';list.innerHTML=f.map(e=>{const s=SM[e.sent];return `<div class="epc ${e.src}" id="ec${e.id}" onclick="togPod(${e.id})"><div class="emeta"><span class="ebadge ${e.src}">${SL[e.src]}</span><span class="edate">${e.date}</span><span class="esent ${s.c}">${s.l}</span></div><div class="etitle">${e.title}</div><div class="etags">${e.tags.map(t=>`<span class="etag">#${t}</span>`).join('')}</div><div class="ebody" id="eb${e.id}"><ul class="epts">${e.pts.map(p=>`<li>${p}</li>`).join('')}</ul><a class="elink" href="${e.link}" target="_blank">▶ 前往收聽 →</a></div></div>`;}).join('');}
+function togPod(id){document.getElementById('eb'+id).classList.toggle('show');document.getElementById('ec'+id).classList.toggle('open');}
+function fSrc(s,btn){cS=s;cSe='all';document.querySelectorAll('.pfbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPod();}
+function fSent(s,btn){cSe=cSe===s?'all':s;cS='all';document.querySelectorAll('.pfbtn').forEach(b=>b.classList.remove('active'));if(cSe!=='all')btn.classList.add('active');else document.querySelector('.pfbtn').classList.add('active');renderPod();}
+function fSearch(v){cQ=v.trim();renderPod();}
+
+// ══ INIT ══
+updateKeyStatus();
+renderDefaultStocks();
+renderWatchlist();
+renderPortfolio();
+renderSimulator();
+renderPod();
+</script>
+</body>
+</html>
