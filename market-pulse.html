@@ -266,6 +266,21 @@ footer{padding:24px 0 10px;font-family:'JetBrains Mono',monospace;font-size:10px
 /* PORTFOLIO & SIMULATOR (shared) */
 .ptf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;}
 select,input[type=number],input[type=text]{font-family:'JetBrains Mono',monospace;}
+
+/* SOURCE BUTTONS */
+.src-btn{display:flex;align-items:center;gap:10px;background:var(--s3);border:1px solid var(--b2);padding:10px 12px;cursor:pointer;transition:all .18s;text-align:left;width:100%;}
+.src-btn:hover{border-color:var(--cyan);background:rgba(0,229,255,.06);}
+.src-btn.loading{opacity:.6;cursor:not-allowed;border-color:var(--gold);}
+.src-btn.done{border-color:var(--grn);background:rgba(0,255,157,.06);}
+.src-btn.error{border-color:#ff6680;background:rgba(255,51,85,.06);}
+.src-btn-icon{font-size:18px;flex-shrink:0;width:24px;text-align:center;}
+.src-btn-content{flex:1;min-width:0;}
+.src-btn-name{font-family:'JetBrains Mono',monospace;font-size:11px;color:#fff;font-weight:700;margin-bottom:2px;}
+.src-btn-status{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);}
+.src-btn.done .src-btn-status{color:var(--grn);}
+.src-btn.error .src-btn-status{color:#ff6680;}
+.src-btn-arrow{font-size:14px;color:var(--t3);flex-shrink:0;transition:transform .3s;}
+.src-btn.loading .src-btn-arrow{animation:spin .8s linear infinite;}
 </style>
 </head>
 <body>
@@ -395,12 +410,127 @@ select,input[type=number],input[type=text]{font-family:'JetBrains Mono',monospac
 
 <!-- ══ 個股 ══ -->
 <div id="panel-stocks" class="panel">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-    <div><div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;">本週熱門討論個股 Top 10</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);">來源：Podcast · <span style="color:#ff7060;">PTT 股版</span> · 資料：<span id="stocks-date">2026/03/21（舊）</span></div>
+
+  <!-- Podcast 追蹤設定 -->
+  <div style="background:var(--s2);border:1px solid var(--b2);border-left:3px solid var(--cyan);padding:15px 16px;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:.1em;margin-bottom:3px;">🎙 追蹤的 Podcast</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);">AI 更新個股時會搜尋這些 Podcast 的最新討論</div>
+      </div>
+      <button onclick="togglePodcastSettings()" id="podcast-settings-btn" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 12px;background:none;border:1px solid var(--b2);color:var(--t3);cursor:pointer;">⚙ 管理</button>
     </div>
-    <button onclick="refreshStocksPage()" id="stocks-refresh-btn" class="hbtn hbtn-blue"><span id="stocks-refresh-icon">↻</span><span id="stocks-refresh-txt">更新這頁</span></button>
+
+    <!-- 已追蹤的 Podcast 標籤 -->
+    <div id="podcast-tags" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;"></div>
+
+    <!-- 新增輸入區（預設隱藏）-->
+    <div id="podcast-settings-panel" style="display:none;margin-top:12px;border-top:1px solid var(--b2);padding-top:12px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:8px;">輸入 Podcast 名稱（任何語言均可）：</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <input id="podcast-input" type="text" placeholder="例：財經皓角、股癌、All-in Podcast、The Indicator…"
+          style="flex:1;background:var(--s3);border:1px solid var(--b2);color:#fff;font-family:'Noto Serif TC',serif;font-size:14px;padding:9px 13px;outline:none;"
+          onkeydown="if(event.key==='Enter')addPodcast()"
+          onfocus="this.style.borderColor='rgba(0,229,255,.5)'"
+          onblur="this.style.borderColor='var(--b2)'">
+        <button onclick="addPodcast()" style="background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.4);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:12px;padding:0 14px;cursor:pointer;font-weight:700;">+ 加入</button>
+      </div>
+      <!-- 快速加入預設 -->
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:6px;">快速加入：</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+        <button class="sq-chip" onclick="addPodcastQuick('財經皓角')">財經皓角</button>
+        <button class="sq-chip" onclick="addPodcastQuick('股癌 Gooaye')">股癌</button>
+        <button class="sq-chip" onclick="addPodcastQuick('IEO 看什麼')">IEO 看什麼</button>
+        <button class="sq-chip" onclick="addPodcastQuick('財經M平方')">M平方</button>
+        <button class="sq-chip" onclick="addPodcastQuick('All-in Podcast')">All-in</button>
+        <button class="sq-chip" onclick="addPodcastQuick('Invest Like the Best')">Invest Like Best</button>
+        <button class="sq-chip" onclick="addPodcastQuick('We Study Billionaires')">We Study Billionaires</button>
+        <button class="sq-chip" onclick="addPodcastQuick('The Indicator')">The Indicator</button>
+      </div>
+    </div>
   </div>
+
+  <!-- 來源更新按鈕面板 -->
+  <div style="background:var(--s2);border:1px solid var(--b2);padding:15px 16px;margin-bottom:14px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;">本週熱門討論個股 Top 10</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);">資料：<span id="stocks-date">2026/03/21（舊）</span> · 點各來源按鈕分別更新</div>
+      </div>
+      <button onclick="refreshAllSources()" id="stocks-refresh-btn" class="hbtn hbtn-blue" style="flex-shrink:0;">
+        <span id="stocks-refresh-icon">↻</span><span id="stocks-refresh-txt">全部更新</span>
+      </button>
+    </div>
+
+    <!-- 各來源獨立按鈕 -->
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;" id="source-btns">
+      <button onclick="refreshBySource('podcast')" class="src-btn" id="sbtn-podcast">
+        <span class="src-btn-icon">🎙</span>
+        <div class="src-btn-content">
+          <div class="src-btn-name">Podcast</div>
+          <div class="src-btn-status" id="sst-podcast">未更新</div>
+        </div>
+        <span class="src-btn-arrow">↻</span>
+      </button>
+      <button onclick="refreshBySource('ptt')" class="src-btn" id="sbtn-ptt">
+        <span class="src-btn-icon">💬</span>
+        <div class="src-btn-content">
+          <div class="src-btn-name">PTT 股版</div>
+          <div class="src-btn-status" id="sst-ptt">未更新</div>
+        </div>
+        <span class="src-btn-arrow">↻</span>
+      </button>
+      <button onclick="refreshBySource('broker')" class="src-btn" id="sbtn-broker">
+        <span class="src-btn-icon">🏦</span>
+        <div class="src-btn-content">
+          <div class="src-btn-name">券商晨報</div>
+          <div class="src-btn-status" id="sst-broker">未更新</div>
+        </div>
+        <span class="src-btn-arrow">↻</span>
+      </button>
+      <button onclick="refreshBySource('yahoo')" class="src-btn" id="sbtn-yahoo">
+        <span class="src-btn-icon">📊</span>
+        <div class="src-btn-content">
+          <div class="src-btn-name">Yahoo 留言</div>
+          <div class="src-btn-status" id="sst-yahoo">未更新</div>
+        </div>
+        <span class="src-btn-arrow">↻</span>
+      </button>
+      <button onclick="refreshBySource('reddit')" class="src-btn" id="sbtn-reddit">
+        <span class="src-btn-icon">🌐</span>
+        <div class="src-btn-content">
+          <div class="src-btn-name">Reddit</div>
+          <div class="src-btn-status" id="sst-reddit">未更新</div>
+        </div>
+        <span class="src-btn-arrow">↻</span>
+      </button>
+      <button onclick="refreshBySource('twitter')" class="src-btn" id="sbtn-twitter">
+        <span class="src-btn-icon">𝕏</span>
+        <div class="src-btn-content">
+          <div class="src-btn-name">X / Twitter</div>
+          <div class="src-btn-status" id="sst-twitter">未更新</div>
+        </div>
+        <span class="src-btn-arrow">↻</span>
+      </button>
+      <button onclick="refreshBySource('broker_intl')" class="src-btn" id="sbtn-broker_intl">
+        <span class="src-btn-icon">📰</span>
+        <div class="src-btn-content">
+          <div class="src-btn-name">外媒 / 鉅亨網</div>
+          <div class="src-btn-status" id="sst-broker_intl">未更新</div>
+        </div>
+        <span class="src-btn-arrow">↻</span>
+      </button>
+      <button onclick="refreshBySource('cmoney')" class="src-btn" id="sbtn-cmoney">
+        <span class="src-btn-icon">📈</span>
+        <div class="src-btn-content">
+          <div class="src-btn-name">CMoney / MoneyDJ</div>
+          <div class="src-btn-status" id="sst-cmoney">未更新</div>
+        </div>
+        <span class="src-btn-arrow">↻</span>
+      </button>
+    </div>
+  </div>
+
   <div id="stocks-progress" style="display:none;background:var(--s2);border:1px solid var(--b2);border-left:3px solid var(--cyan);padding:12px 15px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cyan);"></div>
   <div id="stocks-grid" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;"></div>
   <div class="div"></div>
@@ -656,13 +786,23 @@ async function apiFetch(body) {
 
   if (!r.ok) {
     const e = await r.json().catch(() => ({}));
-    throw new Error(e?.error || 'Worker 錯誤 HTTP ' + r.status);
+    const msg = typeof e?.error === 'string' ? e.error : (e?.error?.message || JSON.stringify(e) || 'HTTP ' + r.status);
+    throw new Error(msg);
   }
 
   const data = await r.json();
 
+  // Gemini 回傳錯誤（狀態碼 200 但有 error 欄位）
+  if(data.error){
+    const msg = typeof data.error === 'string' ? data.error : (data.error?.message || JSON.stringify(data.error));
+    throw new Error('Gemini: ' + msg);
+  }
+
   // 把 Gemini 回應轉成 Anthropic 格式（讓其他程式碼不用改）
   const text = data.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
+  if(!text && data.candidates?.[0]?.finishReason === 'SAFETY'){
+    throw new Error('Gemini 安全過濾攔截，請換個問法');
+  }
   return { content: [{ type: 'text', text }] };
 }
 
@@ -735,26 +875,323 @@ function renderDefaultStocks(data){
   const catLabel={tw:'🇹🇼 台股',us:'🇺🇸 美股',hk:'🇭🇰 港股',crypto:'₿ 加密'};
   const sc={up:'var(--grn)',dn:'#ff6680',warn:'var(--gold)'};
   const srcCls={haojiao:'haojiao',gooaye:'gooaye',ieo:'ieo',macromicro:'macro',ptt:'ptt',both:'both'};
+
+  // 來源類型判斷（彈性，不限定固定 Podcast）
+  const getSrcStyle = (src, srcName) => {
+    if(src === 'ptt') return { icon:'💬', color:'#ff7060', type:'社群論壇' };
+    if(src === 'both') return { icon:'🎙💬', color:'#ffaa32', type:'Podcast + 社群' };
+    if(src === 'macromicro') return { icon:'📊', color:'var(--purple)', type:'Podcast' };
+    if(src === 'reddit') return { icon:'🌐', color:'#ff6680', type:'Reddit' };
+    if(src === 'broker') return { icon:'🏦', color:'var(--gold)', type:'券商報告' };
+    if(src === 'media') return { icon:'📰', color:'var(--blue)', type:'財經媒體' };
+    // 預設：Podcast（包含任何 Podcast 來源）
+    return { icon:'🎙', color:'var(--cyan)', type:'Podcast' };
+  };
+
   grid.innerHTML=stocks.map((s,idx)=>{
     const c=sc[s.dir]||'var(--gold)';
     const cls=srcCls[s.src]||'haojiao';
+    const sm=getSrcStyle(s.src, s.srcName);
     return `<div style="background:var(--s2);border:1px solid var(--b2);padding:18px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${c},transparent);"></div>
-      <div style="position:absolute;top:13px;left:13px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--b3);font-weight:700;">#${idx+1}</div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;margin-left:20px;">
-        <div><div style="font-size:18px;font-weight:900;color:#fff;">${s.name}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-top:2px;">${s.code} · ${catLabel[s.cat]||''}</div></div>
-        <div style="text-align:right;flex-shrink:0;"><div style="font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:${c};">${s.price}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c};margin-top:2px;">${s.chg}</div></div>
+
+      <!-- 排名 + 股票名稱 + 價格 -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--b3);font-weight:700;margin-top:3px;">#${idx+1}</div>
+          <div>
+            <div style="font-size:18px;font-weight:900;color:#fff;">${s.name}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-top:2px;">${s.code} · ${catLabel[s.cat]||''}</div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:${c};">${s.price}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c};margin-top:2px;">${s.chg}</div>
+        </div>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;"><span class="pod-src-tag ${cls}">${s.srcName}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);border:1px solid var(--b2);padding:2px 7px;">${s.srcDate}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);">${s.srcNote}</span></div>
+
+        <div style="background:var(--s1);border:1px solid var(--b2);border-left:3px solid ${sm.color};padding:10px 12px;margin-bottom:12px;border-radius:2px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;">
+          <span style="font-size:13px;">${sm.icon}</span>
+          <span class="pod-src-tag ${cls}">${s.srcName}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);border:1px solid var(--b2);padding:2px 7px;">${sm.type}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);">${s.srcDate}</span>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);line-height:1.6;">${s.srcNote}</div>
+      </div>
+
+      <!-- 數據格 -->
       <div style="border-top:1px solid var(--b2);border-left:1px solid var(--b2);display:grid;grid-template-columns:1fr 1fr;margin-bottom:10px;">${s.data.map(([l,v,cv])=>`<div style="padding:6px 11px;border-right:1px solid var(--b2);border-bottom:1px solid var(--b2);"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-bottom:2px;">${l}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:${cv==='g'?'var(--grn)':cv==='r'?'#ff6680':'var(--t2)'};">${v}</div></div>`).join('')}</div>
-      <div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:6px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--grn);font-weight:700;margin-right:6px;">▲</span>${s.thesis}</div>
-      <div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:12px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#ff6680;font-weight:700;margin-right:6px;">▼</span>${s.risk}</div>
+
+      <!-- 論點 / 風險 -->
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:6px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--grn);font-weight:700;margin-right:6px;">▲ 論點</span>${s.thesis}</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:12px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#ff6680;font-weight:700;margin-right:6px;">▼ 風險</span>${s.risk}</div>
+
       <button onclick='q("幫我深度分析 ${s.name}（${s.code}），今日最新狀況、短線操作建議和長線投資邏輯。")' style="width:100%;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px;cursor:pointer;">✦ AI 深度分析</button>
     </div>`;
   }).join('');
 }
 
-// ══ REFRESH STOCKS ══
+// ══ PODCAST 追蹤設定 ══
+const DEFAULT_PODCASTS = ['財經皓角', '股癌 Gooaye', 'IEO 看什麼', 'PTT 股版'];
+let trackedPodcasts = JSON.parse(localStorage.getItem('tracked_podcasts') || JSON.stringify(DEFAULT_PODCASTS));
+
+function savePodcasts(){ localStorage.setItem('tracked_podcasts', JSON.stringify(trackedPodcasts)); }
+
+function togglePodcastSettings(){
+  const panel = document.getElementById('podcast-settings-panel');
+  const btn = document.getElementById('podcast-settings-btn');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '⚙ 管理' : '✕ 關閉';
+}
+
+function addPodcast(){
+  const inp = document.getElementById('podcast-input');
+  const name = inp.value.trim();
+  if(!name) return;
+  if(!trackedPodcasts.includes(name)){
+    trackedPodcasts.push(name);
+    savePodcasts();
+    renderPodcastTags();
+    updateStocksSrcLabel();
+  }
+  inp.value = '';
+}
+
+function addPodcastQuick(name){
+  if(!trackedPodcasts.includes(name)){
+    trackedPodcasts.push(name);
+    savePodcasts();
+    renderPodcastTags();
+    updateStocksSrcLabel();
+  }
+}
+
+function removePodcast(name){
+  trackedPodcasts = trackedPodcasts.filter(p => p !== name);
+  savePodcasts();
+  renderPodcastTags();
+  updateStocksSrcLabel();
+}
+
+function renderPodcastTags(){
+  const el = document.getElementById('podcast-tags');
+  if(!trackedPodcasts.length){
+    el.innerHTML = '<span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--t3);">尚未追蹤任何 Podcast，點「管理」加入</span>';
+    return;
+  }
+  el.innerHTML = trackedPodcasts.map(name => {
+    const isPTT = name.includes('PTT');
+    const color = isPTT ? '#ff7060' : 'var(--cyan)';
+    const icon = isPTT ? '💬' : '🎙';
+    return `<span style="display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;background:${color}18;border:1px solid ${color}44;color:${color};">
+      ${icon} ${name}
+      <button onclick="removePodcast('${name.replace(/'/g,"\\'")}')" style="background:none;border:none;color:${color};cursor:pointer;font-size:12px;padding:0 0 0 4px;opacity:.7;">✕</button>
+    </span>`;
+  }).join('');
+}
+
+function updateStocksSrcLabel(){
+  const el = document.getElementById('stocks-src-label');
+  if(!el) return;
+  const pods = trackedPodcasts.filter(p => !p.includes('PTT'));
+  const hasPTT = trackedPodcasts.some(p => p.includes('PTT'));
+  let label = pods.length ? pods.slice(0,2).join('、') + (pods.length > 2 ? ` 等${pods.length}個 Podcast` : ' Podcast') : '';
+  if(hasPTT) label += (label ? ' · ' : '') + '<span style="color:#ff7060;">PTT 股版</span>';
+  el.innerHTML = label || 'Podcast · PTT 股版';
+}
+
+// ══ PER-SOURCE REFRESH ══
+const SOURCE_CONFIG = {
+  podcast:    { icon:'🎙', name:'Podcast',       query: (s,pods) => `${s.name}（${s.code}）在以下Podcast是否被討論：${pods}。搜尋最新提及內容。` },
+  ptt:        { icon:'💬', name:'PTT 股版',       query: (s)     => `PTT股版 site:ptt.cc ${s.name} ${s.code} 標的 最新討論 推文數` },
+  broker:     { icon:'🏦', name:'券商晨報',       query: (s)     => `${s.name} ${s.code} 券商報告 元大 富邦 凱基 今日推薦 目標價 2026` },
+  yahoo:      { icon:'📊', name:'Yahoo 留言',     query: (s)     => `${s.name} ${s.code} Yahoo股市 留言 討論 site:tw.stock.yahoo.com` },
+  reddit:     { icon:'🌐', name:'Reddit',         query: (s)     => `${s.name} ${s.code} stock discussion reddit r/stocks r/investing 2026` },
+  twitter:    { icon:'𝕏',  name:'X / Twitter',    query: (s)     => `${s.name} ${s.code} 股票 Twitter X 財經 KOL 2026` },
+  broker_intl:{ icon:'📰', name:'外媒 / 鉅亨網',  query: (s)     => `${s.name} ${s.code} 鉅亨網 Bloomberg Reuters MoneyDJ 最新新聞 2026` },
+  cmoney:     { icon:'📈', name:'CMoney',         query: (s)     => `${s.name} ${s.code} CMoney MoneyDJ 分析 法人 2026` },
+};
+
+// 儲存各來源抓到的資料（疊加式更新）
+let stocksSourceData = {}; // { stockId: { podcast: '...', ptt: '...', ... } }
+
+// 取消控制器（用 AbortController 真正中斷 fetch）
+const srcControllers = {};
+const srcLoadingFlags = {};
+
+function setSrcBtnState(srcKey, state, statusText){
+  const btn = document.getElementById('sbtn-'+srcKey);
+  const st = document.getElementById('sst-'+srcKey);
+  if(!btn) return;
+  btn.className = 'src-btn' + (state ? ' '+state : '');
+  const arrow = btn.querySelector('.src-btn-arrow');
+  if(state === 'loading'){
+    if(arrow){ arrow.textContent = '⏹'; arrow.style.color='#ff6680'; arrow.style.fontSize='18px'; }
+  } else {
+    if(arrow){ arrow.textContent = '↻'; arrow.style.color=''; arrow.style.fontSize=''; }
+  }
+  if(st) st.textContent = statusText || '';
+}
+
+async function refreshBySource(srcKey){
+  const cfg = SOURCE_CONFIG[srcKey];
+  if(!cfg) return;
+
+  // 再按一次 → 立即取消
+  if(srcLoadingFlags[srcKey]){
+    srcControllers[srcKey]?.abort();
+    srcLoadingFlags[srcKey] = false;
+    setSrcBtnState(srcKey, '', '已取消');
+    return;
+  }
+
+  // 建立新的 AbortController
+  srcControllers[srcKey] = new AbortController();
+  srcLoadingFlags[srcKey] = true;
+  setSrcBtnState(srcKey, 'loading', '搜尋中 1/' + POD_STOCKS.length + '… 再按可取消');
+
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+  const pods = trackedPodcasts.filter(p=>!p.includes('PTT')).join('、') || '財經皓角、股癌、IEO看什麼';
+  const signal = srcControllers[srcKey].signal;
+
+  let successCount = 0;
+  let processed = 0;
+
+  for(const s of POD_STOCKS){
+    if(signal.aborted){
+      setSrcBtnState(srcKey, '', `已取消（已搜 ${processed}/${POD_STOCKS.length}）`);
+      srcLoadingFlags[srcKey] = false;
+      renderStocksWithSources();
+      return;
+    }
+    setSrcBtnState(srcKey, 'loading', `搜尋中 ${processed+1}/${POD_STOCKS.length}… 再按可取消`);
+    try{
+      const queryText = cfg.query(s, pods);
+      // 直接呼叫 fetch 並帶 signal，讓它可以被 abort
+      const key = WORKER_URL;
+      const r = await fetch(WORKER_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          contents:[{role:'user',parts:[{text:`今天是${dateStr}。請搜尋：${queryText}\n只回JSON：{"found":true或false,"summary":"1句摘要（沒有就空字串）","sentiment":"bull或bear或neutral或unknown"}`}]}],
+          tools:[{google_search:{}}],
+          generationConfig:{maxOutputTokens:300}
+        }),
+        signal
+      });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const data = await r.json();
+      const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
+      const jm = text.match(/\{[\s\S]*\}/);
+      if(jm){
+        const u = JSON.parse(jm[0]);
+        if(!stocksSourceData[s.id]) stocksSourceData[s.id] = {};
+        stocksSourceData[s.id][srcKey] = u.found ? u.summary : '';
+        if(u.found) successCount++;
+      }
+    }catch(e){
+      if(e.name === 'AbortError'){
+        setSrcBtnState(srcKey, '', `已取消（已搜 ${processed}/${POD_STOCKS.length}）`);
+        srcLoadingFlags[srcKey] = false;
+        renderStocksWithSources();
+        return;
+      }
+    }
+    processed++;
+    renderStocksWithSources();
+  }
+
+  srcLoadingFlags[srcKey] = false;
+  setSrcBtnState(srcKey, 'done', `✓ ${successCount}/${POD_STOCKS.length} 支有提及`);
+  document.getElementById('stocks-date').textContent = dateStr + '（部分更新）';
+}
+
+async function refreshAllSources(){
+  const btn = document.getElementById('stocks-refresh-btn');
+  const txt = document.getElementById('stocks-refresh-txt');
+  btn.style.opacity='.5'; btn.style.pointerEvents='none';
+  txt.textContent='全部更新中…';
+  for(const key of Object.keys(SOURCE_CONFIG)){
+    await refreshBySource(key);
+  }
+  btn.style.opacity='1'; btn.style.pointerEvents='auto';
+  txt.textContent='全部更新';
+  const today=new Date();
+  document.getElementById('stocks-date').textContent=
+    `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')} ${today.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}（即時）`;
+}
+
+function renderStocksWithSources(){
+  const grid = document.getElementById('stocks-grid');
+  const catLabel={tw:'🇹🇼 台股',us:'🇺🇸 美股',hk:'🇭🇰 港股',crypto:'₿ 加密'};
+  const sc={up:'var(--grn)',dn:'#ff6680',warn:'var(--gold)'};
+  const srcCls={haojiao:'haojiao',gooaye:'gooaye',ieo:'ieo',macromicro:'macro',ptt:'ptt',both:'both'};
+  const getSrcStyle = (src) => {
+    if(src==='ptt') return {icon:'💬',color:'#ff7060',type:'社群論壇'};
+    if(src==='both') return {icon:'🎙💬',color:'#ffaa32',type:'Podcast + 社群'};
+    if(src==='broker') return {icon:'🏦',color:'var(--gold)',type:'券商報告'};
+    if(src==='media'||src==='broker_intl') return {icon:'📰',color:'var(--blue)',type:'財經媒體'};
+    return {icon:'🎙',color:'var(--cyan)',type:'Podcast'};
+  };
+
+  grid.innerHTML = POD_STOCKS.map((s,idx)=>{
+    const c=sc[s.dir]||'var(--gold)';
+    const cls=srcCls[s.src]||'haojiao';
+    const sm=getSrcStyle(s.src);
+    const extra = stocksSourceData[s.id] || {};
+
+    // 組合所有來源資料
+    const srcRows = Object.entries(SOURCE_CONFIG)
+      .filter(([k]) => extra[k])
+      .map(([k,cfg]) => `<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+        <span style="font-size:13px;flex-shrink:0;">${cfg.icon}</span>
+        <div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-right:6px;">${cfg.name}</span>
+          <span style="font-size:12px;color:var(--t2);">${extra[k]}</span>
+        </div>
+      </div>`).join('');
+
+    return `<div style="background:var(--s2);border:1px solid var(--b2);padding:18px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${c},transparent);"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;">
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--b3);font-weight:700;margin-top:3px;">#${idx+1}</div>
+          <div><div style="font-size:18px;font-weight:900;color:#fff;">${s.name}</div><div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-top:2px;">${s.code} · ${catLabel[s.cat]||''}</div></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:${c};">${s.price}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c};margin-top:2px;">${s.chg}</div>
+        </div>
+      </div>
+
+      <!-- 原始來源標籤 -->
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:${srcRows?'8':'10'}px;">
+        <span class="pod-src-tag ${cls}">${sm.icon} ${s.srcName}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);border:1px solid var(--b2);padding:2px 7px;">${s.srcDate}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);">${s.srcNote}</span>
+      </div>
+
+      <!-- 即時來源資料（更新後才出現）-->
+      ${srcRows ? `<div style="background:var(--s1);border:1px solid var(--b2);border-left:3px solid var(--cyan);padding:10px 12px;margin-bottom:10px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:.1em;margin-bottom:6px;">即時來源更新</div>
+        ${srcRows}
+      </div>` : ''}
+
+      <!-- 數據格 -->
+      <div style="border-top:1px solid var(--b2);border-left:1px solid var(--b2);display:grid;grid-template-columns:1fr 1fr;margin-bottom:10px;">${s.data.map(([l,v,cv])=>`<div style="padding:6px 11px;border-right:1px solid var(--b2);border-bottom:1px solid var(--b2);"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-bottom:2px;">${l}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:${cv==='g'?'var(--grn)':cv==='r'?'#ff6680':'var(--t2)'};">${v}</div></div>`).join('')}</div>
+
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:6px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--grn);font-weight:700;margin-right:6px;">▲ 論點</span>${s.thesis}</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.75;margin-bottom:12px;"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#ff6680;font-weight:700;margin-right:6px;">▼ 風險</span>${s.risk}</div>
+
+      <button onclick='q("幫我深度分析 ${s.name}（${s.code}），今日最新狀況、短線操作建議和長線投資邏輯。")' style="width:100%;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px;cursor:pointer;">✦ AI 深度分析</button>
+    </div>`;
+  }).join('');
+}
+
+// ══ REFRESH STOCKS（舊版保留作為 fallback）══
 let isRefreshingStocks=false;
 async function refreshStocksPage(){
   if(isRefreshingStocks) return;
@@ -768,13 +1205,76 @@ async function refreshStocksPage(){
   const dateStr=`${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
   const timeStr=today.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
   const updated=[...POD_STOCKS];
+
+  // 固定搜尋來源（不管使用者設定什麼都會搜）
+  const FIXED_SOURCES = ['PTT股版', '券商晨報（元大富邦凱基）', 'Yahoo股市留言', 'CMoney', 'MoneyDJ', '鉅亨網', 'Reddit r/stocks', 'X Twitter財經'];
+  // 加上使用者追蹤的 Podcast
+  const userPodcasts = trackedPodcasts.filter(p => !p.includes('PTT'));
+  const allSources = [...new Set([...userPodcasts, ...FIXED_SOURCES])];
+
   for(let i=0;i<POD_STOCKS.length;i++){
     const s=POD_STOCKS[i];
     prog.textContent=`↻ 更新中 ${i+1}/${POD_STOCKS.length}：${s.name}…`;
     try{
-      const res=await apiFetch({model:'claude-sonnet-4-20250514',max_tokens:400,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:`今天是${dateStr}。搜尋${s.name}（${s.code}）最新股價，只回JSON：{"price":"含幣別","chg":"含▲▼","dir":"up或dn或warn","thesis":"最新1句","risk":"最新風險1句"}`}]});
+      const res=await apiFetch({
+        model:'claude-sonnet-4-20250514', max_tokens:700,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:
+`今天是${dateStr}。請搜尋 ${s.name}（${s.code}）的最新資訊，只回JSON：
+{
+  "price": "現時價格含幣別",
+  "chg": "今日漲跌幅含▲▼",
+  "dir": "up或dn或warn",
+  "thesis": "最新多方論點1句",
+  "risk": "最新風險1句",
+  "sources": {
+    "podcast": "哪些Podcast提到（從這裡找：${userPodcasts.join('、')||'無'}，沒有就空字串）",
+    "ptt": "PTT股版推文數或熱門程度（沒有就空字串）",
+    "broker": "券商晨報觀點（元大富邦凱基，沒有就空字串）",
+    "yahoo": "Yahoo股市留言熱度或觀點（沒有就空字串）",
+    "cmoney": "CMoney或MoneyDJ提及（沒有就空字串）",
+    "reddit": "Reddit r/stocks討論（沒有就空字串）",
+    "twitter": "X Twitter財經討論（沒有就空字串）",
+    "news": "鉅亨網/Bloomberg/Reuters最新新聞1句（沒有就空字串）"
+  }
+}`
+        }]
+      });
       const tb=res.content?.find(b=>b.type==='text');
-      if(tb?.text){const jm=tb.text.match(/\{[\s\S]*\}/);if(jm){const u=JSON.parse(jm[0]);updated[i]={...s,price:u.price||s.price,chg:u.chg||s.chg,dir:u.dir||s.dir,thesis:u.thesis||s.thesis,risk:u.risk||s.risk};}}
+      if(tb?.text){
+        const jm=tb.text.match(/\{[\s\S]*\}/);
+        if(jm){
+          const u=JSON.parse(jm[0]);
+          // 整合來源成 srcNote
+          const srcs = u.sources || {};
+          const srcParts = [];
+          if(srcs.podcast) srcParts.push(`🎙 ${srcs.podcast}`);
+          if(srcs.ptt) srcParts.push(`💬 PTT：${srcs.ptt}`);
+          if(srcs.broker) srcParts.push(`🏦 券商：${srcs.broker}`);
+          if(srcs.yahoo) srcParts.push(`📊 Yahoo：${srcs.yahoo}`);
+          if(srcs.reddit) srcParts.push(`🌐 Reddit：${srcs.reddit}`);
+          if(srcs.twitter) srcParts.push(`𝕏 ${srcs.twitter}`);
+          if(srcs.news) srcParts.push(`📰 ${srcs.news}`);
+          // 決定主要來源標示
+          let newSrc = s.src, newSrcName = s.srcName;
+          if(srcs.podcast && srcs.ptt) { newSrc='both'; newSrcName=srcs.podcast+' + PTT'; }
+          else if(srcs.podcast) { newSrc='haojiao'; newSrcName=srcs.podcast; }
+          else if(srcs.broker) { newSrc='broker'; newSrcName='券商晨報'; }
+          else if(srcs.ptt) { newSrc='ptt'; newSrcName='PTT 股版'; }
+          updated[i]={
+            ...s,
+            price:u.price||s.price,
+            chg:u.chg||s.chg,
+            dir:u.dir||s.dir,
+            thesis:u.thesis||s.thesis,
+            risk:u.risk||s.risk,
+            src: newSrc,
+            srcName: newSrcName,
+            srcDate: dateStr,
+            srcNote: srcParts.length ? srcParts.join(' · ') : s.srcNote,
+          };
+        }
+      }
     }catch(e){ if(e.message==='請先設定 API Key'){prog.textContent='請先設定 API Key';break;} }
     renderDefaultStocks(updated);
   }
@@ -1064,7 +1564,9 @@ function fSearch(v){cQ=v.trim();renderPod();}
 
 // ══ INIT ══
 updateKeyStatus();
-renderDefaultStocks();
+renderPodcastTags();
+updateStocksSrcLabel();
+renderStocksWithSources();
 renderWatchlist();
 renderPortfolio();
 renderSimulator();
