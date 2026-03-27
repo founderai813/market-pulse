@@ -1540,7 +1540,26 @@ const chatHistory=[];
 let isLoadingAI=false;
 async function sendAI(text){const inp=document.getElementById('ai-input');const msg=text||inp.value.trim();if(!msg||isLoadingAI)return;inp.value='';appendMsg('user',msg);chatHistory.push({role:'user',content:msg});setLoadingAI(true);try{const res=await apiFetch({model:'claude-sonnet-4-20250514',max_tokens:1000,system:CONTEXT,messages:chatHistory.slice(-10)});const reply=res.content?.[0]?.text||'抱歉，無法取得回應，請稍後再試。';removeTypingAI();appendMsg('ai',reply);chatHistory.push({role:'assistant',content:reply});}catch(e){removeTypingAI();if(e.message==='請先設定 API Key') appendMsg('ai','請先點右上角「🔑 設定 API Key」才能使用 AI 功能。'); else appendMsg('ai','⚠ 連接 AI 時發生錯誤：'+e.message);}finally{setLoadingAI(false);}}
 function q(text){switchTab('ai',document.getElementById('nav-ai'));setTimeout(()=>sendAI(text),100);}
-function appendMsg(role,text){const box=document.getElementById('ai-msgs');const d=document.createElement('div');d.className=`msg ${role}`;const fmt=text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');d.innerHTML=`<div class="ava">${role==='ai'?'✦':'你'}</div><div class="bubble">${fmt}</div>`;box.appendChild(d);box.scrollTop=box.scrollHeight;}
+function mdToHtml(text){
+  return text
+    .replace(/###\s+(.+)/g, '<div style="font-size:15px;font-weight:700;color:#fff;margin:14px 0 6px;">$1</div>')
+    .replace(/##\s+(.+)/g, '<div style="font-size:16px;font-weight:700;color:#fff;margin:14px 0 6px;">$1</div>')
+    .replace(/#\s+(.+)/g, '<div style="font-size:17px;font-weight:700;color:#fff;margin:14px 0 6px;">$1</div>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^[-•]\s+(.+)/gm, '<div style="display:flex;gap:8px;margin:4px 0;"><span style="color:var(--gold);flex-shrink:0;">▸</span><span>$1</span></div>')
+    .replace(/^\d+\.\s+(.+)/gm, '<div style="display:flex;gap:8px;margin:4px 0;"><span style="color:var(--gold);flex-shrink:0;font-family:\'JetBrains Mono\',monospace;font-size:11px;">$&</span></div>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+function appendMsg(role,text){
+  const box=document.getElementById('ai-msgs');
+  const d=document.createElement('div');
+  d.className=`msg ${role}`;
+  d.innerHTML=`<div class="ava">${role==='ai'?'✦':'你'}</div><div class="bubble">${mdToHtml(text)}</div>`;
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
 function setLoadingAI(v){isLoadingAI=v;document.getElementById('ai-send').disabled=v;if(v){const box=document.getElementById('ai-msgs');const d=document.createElement('div');d.className='msg ai';d.id='typing';d.innerHTML='<div class="ava">✦</div><div class="bubble"><div class="typing-wrap"><span></span><span></span><span></span></div></div>';box.appendChild(d);box.scrollTop=box.scrollHeight;}}
 function removeTypingAI(){const t=document.getElementById('typing');if(t)t.remove();}
 
